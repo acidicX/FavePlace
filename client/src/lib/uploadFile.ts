@@ -1,13 +1,15 @@
 import firebase from 'firebase';
-import { v4 } from 'uuid'
-import { MediaType } from '../types'
+import { v4 } from 'uuid';
+import { MediaType } from '../types';
 
 export async function uploadFile(type: MediaType, title: string, tags: Array<string>, blob: Blob) {
   const storageRef = firebase.storage().ref();
   const id = v4();
   const imageRef = storageRef.child(id);
-  imageRef.put(blob)
-    .catch((e) => {
+
+  return imageRef
+    .put(blob)
+    .catch(e => {
       console.error(e);
     })
     .then(function(snapshot) {
@@ -19,9 +21,12 @@ export async function uploadFile(type: MediaType, title: string, tags: Array<str
           title,
           tags,
           type,
-          fullPath: snapshot.ref.fullPath
+          fullPath: snapshot.ref.fullPath,
         });
-    }).catch((e) => {
+
+      return snapshot;
+    })
+    .catch(e => {
       console.error(e);
     });
 }

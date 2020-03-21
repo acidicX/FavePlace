@@ -3,9 +3,11 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import './UploadForm.css';
 import { uploadFile } from '../../lib/uploadFile';
 import { MediaType } from '../../types';
+import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core';
+import { TextField, Select } from 'formik-material-ui';
+import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
 
-export interface IUploadFormProps {
-}
+export interface IUploadFormProps {}
 
 interface IFormValues {
   type: MediaType;
@@ -25,13 +27,12 @@ const initialValues: IFormValues = {
   type: 'image',
   title: 'test',
   tags: ['test1'],
-  file: ''
-}
+  file: '',
+};
 
 const UploadForm: React.SFC<IUploadFormProps> = () => {
-
   return (
-    <div className='UploadForm'>
+    <div className="UploadForm">
       <Formik
         initialValues={initialValues}
         validate={values => {
@@ -47,15 +48,16 @@ const UploadForm: React.SFC<IUploadFormProps> = () => {
           }
           return errors;
         }}
-        onSubmit={(values: IFormValues, { setSubmitting }) => {
+        onSubmit={async (values: IFormValues, { setSubmitting }) => {
           const { type, title, tags, fileAsBlob } = values;
           if (!fileAsBlob) {
-            throw new Error("no file");
+            throw new Error('no file');
           }
-          console.log("submit");
+
           try {
             setSubmitting(true);
-            uploadFile(type, title, tags, fileAsBlob);
+            const snapshot = await uploadFile(type, title, tags, fileAsBlob);
+            console.log(snapshot);
             setSubmitting(false);
           } catch (e) {
             console.error(e);
@@ -71,40 +73,58 @@ const UploadForm: React.SFC<IUploadFormProps> = () => {
           handleBlur,
           handleSubmit,
           isSubmitting,
-          setFieldValue
+          setFieldValue,
           /* and other goodies */
         }) => (
           <form onSubmit={handleSubmit}>
-            <Field
-              as="select"
-              name="title"
+            <FormControl fullWidth>
+              <Field component={Select} name="type">
+                <MenuItem value={'image'}>Image</MenuItem>
+                <MenuItem value={'image360'}>360° Image</MenuItem>
+                <MenuItem value={'video'}>Video</MenuItem>
+              </Field>
+              <ErrorMessage name="type" component="div" />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <Field component={TextField} type="text" name="title" />
+              <ErrorMessage name="title" component="div" />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <Field
+                className="UploadButton"
+                id="upload-button"
+                type="file"
+                name="file"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setFieldValue('fileAsBlob', e.target.files[0]);
+                  }
+                }}
+              />
+              <label htmlFor="upload-button">
+                <Button component="span">Select file...</Button>
+              </label>
+              <ErrorMessage name="fileAsBlob" component="div" />
+            </FormControl>
+
+            {isSubmitting && <LinearProgress />}
+
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<CloudUploadIcon />}
+              type="submit"
+              disabled={isSubmitting}
             >
-              <option value={'image'}>Image</option>
-              <option value={'image360'}>360° Image</option>
-              <option value={'video'}>Video</option>
-            </Field>
-            <ErrorMessage name="type" component="div" />
-            <Field
-              type="text"
-              name="title"
-            />
-            <ErrorMessage name="title" component="div" />
-            <Field type="file" name="file" onChange={
-              (e: React.ChangeEvent<HTMLInputElement>): void => {
-                if (e.target.files && e.target.files.length > 0) {
-                  setFieldValue('fileAsBlob', e.target.files[0]);
-                }
-              }}
-            />
-            <ErrorMessage name="fileAsBlob" component="div" />
-            <button type="submit" disabled={isSubmitting}>
               Submit
-            </button>
+            </Button>
           </form>
         )}
       </Formik>
     </div>
-  )
-}
+  );
+};
 
-export default UploadForm
+export default UploadForm;

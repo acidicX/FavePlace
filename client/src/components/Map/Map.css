@@ -1,3 +1,13 @@
+.Map {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#map {
+  flex: 1;
+}
+
 .marker {
   background-size: cover;
   width: 50px;
