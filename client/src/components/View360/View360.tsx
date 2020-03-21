@@ -1,5 +1,5 @@
 import * as AFrame from 'aframe';
-import React, { Component, MouseEvent } from 'react';
+import React, { Component } from 'react';
 import './View360.css';
 
 declare global {
@@ -18,11 +18,13 @@ export default class View360 extends Component {
 
   render() {
     return (
-      <a-scene>
-        <a-sky src="/images/360/Milano-Duomo_Carolin-Windloff.jpg" rotation="0 -130 0"></a-sky>
-        <a-text font="kelsonsans" value="Duomo, Milano, Italy" width="6" position="-2.5 0.25 -1.5"
-                rotation="0 15 0"></a-text>
-      </a-scene>
+      <div className='Scene360'>
+        <a-scene vr-mode-ui="enabled: true">
+          <a-sky src="/images/360/Milano-Duomo_Carolin-Windloff.jpg" rotation="0 -130 0"></a-sky>
+          <a-text font="kelsonsans" value="Duomo, Milano, Italy" width="6" position="-2.5 0.25 -1.5"
+                  rotation="0 15 0"></a-text>
+        </a-scene>
+      </div>
     )
   }
 }
