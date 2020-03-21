@@ -2,6 +2,7 @@ import React from 'react';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import uniqBy from 'lodash/uniqBy';
+import { List } from '../List/List';
 
 type HomeProps = {};
 
@@ -111,7 +112,8 @@ export class Home extends React.Component<HomeProps> {
   render() {
     return (
       <aside>
-        <h2>Home</h2>
+        <h2>Shared Experiences</h2>
+        <List />
         <h1>Form</h1>
         {this.dataForm()}
         <div>

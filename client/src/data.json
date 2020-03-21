@@ -1,0 +1,59 @@
+{
+  "assets": {
+    "Berlin_0": {
+      "path": "/images/360/Berlin-GaertenDerWelt1_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Berlin GaertenDerWelt1"
+    },
+    "Berlin_1": {
+      "path": "/images/360/Berlin-GaertenDerWelt2_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Berlin GaertenDerWelt2"
+    },
+    "Berlin_2": {
+      "path": "/images/360/Berlin-RosaLuxemburgPlatz_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Berlin RosaLuxemburgPlatz"
+    },
+    "Milano_0": {
+      "path": "/images/360/Milano-Duomo_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Milano Duomo"
+    },
+    "Milano_1": {
+      "path": "/images/360/Milano-Galleria_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Milano Galleria"
+    },
+    "Milano_2": {
+      "path": "/images/360/Milano-SamsungDistrict_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Milano SamsungDistrict"
+    },
+    "Velbert_0": {
+      "path": "/images/360/Velbert-KleineHoehe_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Velbert KleineHoehe"
+    },
+    "Velbert_1": {
+      "path": "/images/360/Velbert-SchlossHardenberg_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Velbert SchlossHardenberg"
+    },
+    "Wolfburg_0": {
+      "path": "/images/360/Wolfburg-phaeno1_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Wolfburg phaeno1"
+    },
+    "Wolfburg_1": {
+      "path": "/images/360/Wolfburg-phaeno2_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Wolfburg phaeno2"
+    },
+    "Wolfburg_2": {
+      "path": "/images/360/Wolfburg-phaeno3_Carolin-Windloff.jpg",
+      "user": "Carolin Windloff",
+      "title": "Wolfburg phaeno3"
+    }
+  }
+}
