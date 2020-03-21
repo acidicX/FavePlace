@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import random from 'lodash/random'
+import "./Map.css"
 
 export default class Map extends Component {
   state = {
@@ -38,7 +39,7 @@ export default class Map extends Component {
       );
 
       map.on('zoomend', this.fetchLocations)
-      
+
       map.on('dragend', this.fetchLocations)
 
       this.map = map
@@ -55,8 +56,10 @@ export default class Map extends Component {
     const locations = this.generateRandomLocations({ lng, lat })
 
     for (const location of locations) {
-      new mapboxgl.Marker()
+      const marker = new mapboxgl.Marker()
         .setLngLat([location.coordinates.lng, location.coordinates.lat])
+        .setPopup(new mapboxgl.Popup({className: "marker-popup", maxWidth: "none"})
+        .setHTML(`<img src=${location.imgUrl} width="100%"/>`))
         .addTo(this.map);
     }
   }
