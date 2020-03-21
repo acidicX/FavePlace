@@ -3,6 +3,7 @@ import './App.css';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import uniqBy from 'lodash/uniqBy';
+import mapboxgl from 'mapbox-gl';
 
 interface Item {
   id: string,
@@ -32,7 +33,7 @@ export default class App extends Component {
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           this.setState({
-            data: uniqBy([...this.state.data, {...doc.data(), id: doc.id}], 'id')
+            data: uniqBy([...this.state.data, { ...doc.data(), id: doc.id }], 'id')
           });
         });
       });
@@ -40,6 +41,16 @@ export default class App extends Component {
 
   componentDidMount() {
     this.getItems();
+
+    if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
+
+      mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN
+
+      new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v9'
+      })
+    }
   }
 
   dataIndex = () => {
@@ -118,6 +129,8 @@ export default class App extends Component {
           <br />
           {this.dataIndex()}
         </div>
+
+        <div id='map'></div>
       </div>
     );
   }
