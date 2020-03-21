@@ -38,10 +38,17 @@ class Map extends Component<RouteComponentProps, State> {
     if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
       mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-      const map = new mapboxgl.Map({
+      const mapOptions = {
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
-      });
+        style: 'mapbox://styles/martingassner/ck824oanx0aew1jmm6z5w26e0',
+        center: {
+          lat: 51.5167,
+          lng: 9.9167
+        },
+        zoom: 5
+      }
+
+      const map = new mapboxgl.Map(mapOptions);
 
       map.addControl(
         new MapboxGeocoder({
@@ -73,11 +80,12 @@ class Map extends Component<RouteComponentProps, State> {
   }
 
   fetchLocations = async () => {
-    if (this.map.isMoving() || this.map.getZoom() < 8) {
+    const zoom = this.map.getZoom()
+    const { lng, lat } = this.map.getCenter();
+
+    if (this.map.isMoving() || zoom < 8) {
       return;
     }
-
-    const { lng, lat } = this.map.getCenter();
 
     const { locations, images } = this.state;
 
