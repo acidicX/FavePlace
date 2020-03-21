@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder, { GeolocateControl } from '@mapbox/mapbox-gl-geocoder'
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
+import random from 'lodash/random'
 
 export default class Map extends Component {
   state = {
@@ -37,7 +38,7 @@ export default class Map extends Component {
       );
 
       map.on('zoomend', this.fetchLocations)
-
+      
       map.on('dragend', this.fetchLocations)
 
       this.map = map
@@ -45,9 +46,34 @@ export default class Map extends Component {
   }
 
   fetchLocations = async () => {
+    if (this.map.isMoving()) {
+      return
+    }
+
     const { lng, lat } = this.map.getCenter()
 
-    console.log(lng, lat)
+    const locations = this.generateRandomLocations({ lng, lat })
+
+    for (const location of locations) {
+      new mapboxgl.Marker()
+        .setLngLat([location.coordinates.lng, location.coordinates.lat])
+        .addTo(this.map);
+    }
+  }
+
+  generateRandomLocations = ({ lng, lat }) => {
+    const locations = Array.from(Array(random(5, 20))).map(() => {
+      return {
+        coordinates: {
+          lng: lng + (Math.random() - 0.5) / 10,
+          lat: lat + (Math.random() - 0.5) / 10
+        },
+        imgUrl: 'https://source.unsplash.com/random'
+      }
+    })
+
+
+    return locations
   }
 
   render() {
