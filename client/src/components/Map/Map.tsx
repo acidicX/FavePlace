@@ -1,12 +1,23 @@
 import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
-import random from 'lodash/random'
+import uniqBy from 'lodash/uniqBy';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
 import "./Map.css"
 
+interface Item {
+  id: string,
+  title: string,
+  description: string,
+  coordinates: {
+    lat: number,
+    lng: number
+  }
+}
+
 export default class Map extends Component {
-  state = {
-  };
+  state = {};
 
   map: any = null
 
@@ -47,36 +58,53 @@ export default class Map extends Component {
   }
 
   fetchLocations = async () => {
-    if (this.map.isMoving()) {
+    if (this.map.isMoving() || this.map.getZoom() < 8) {
       return
     }
 
     const { lng, lat } = this.map.getCenter()
 
-    const locations = this.generateRandomLocations({ lng, lat })
+    let locations: Item[] = []
+
+    await firebase
+      .firestore()
+      .collection('items')
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          const {
+            title,
+            description
+          } = doc.data()
+
+          locations = uniqBy([
+            ...locations,
+            {
+              title,
+              description,
+              id: doc.id,
+              coordinates: {
+                lng: lng + (Math.random() - 0.5) / 10,
+                lat: lat + (Math.random() - 0.5) / 10
+              },
+            }], 'id')
+        });
+      });
+
 
     for (const location of locations) {
-      const marker = new mapboxgl.Marker()
+      const el = document.createElement('div');
+      el.className = 'marker';
+      el.style.backgroundImage = `url("https://docs.mapbox.com/mapbox-gl-js/assets/washington-monument.jpg")`
+
+      const marker = new mapboxgl.Marker(el)
         .setLngLat([location.coordinates.lng, location.coordinates.lat])
-        .setPopup(new mapboxgl.Popup({className: "marker-popup", maxWidth: "none"})
-        .setHTML(`<img src=${location.imgUrl} width="100%"/>`))
         .addTo(this.map);
+
+      marker.getElement().addEventListener('click', () => {
+        console.log('show image')
+      });
     }
-  }
-
-  generateRandomLocations = ({ lng, lat }) => {
-    const locations = Array.from(Array(random(5, 20))).map(() => {
-      return {
-        coordinates: {
-          lng: lng + (Math.random() - 0.5) / 10,
-          lat: lat + (Math.random() - 0.5) / 10
-        },
-        imgUrl: 'https://source.unsplash.com/random'
-      }
-    })
-
-
-    return locations
   }
 
   render() {
