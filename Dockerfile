@@ -1,4 +1,4 @@
-FROM node:12-alpine AS build-env
+FROM node:12 AS build-env
 
 WORKDIR /usr/src/app-build
 
