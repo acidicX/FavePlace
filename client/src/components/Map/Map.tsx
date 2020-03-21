@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
+import MapboxGeocoder, { GeolocateControl } from '@mapbox/mapbox-gl-geocoder'
 
 export default class Map extends Component {
   state = {
@@ -27,8 +27,27 @@ export default class Map extends Component {
         })
       );
 
+      map.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true
+        })
+      );
+
+      map.on('zoomend', this.fetchLocations)
+
+      map.on('dragend', this.fetchLocations)
+
       this.map = map
     }
+  }
+
+  fetchLocations = async () => {
+    const { lng, lat } = this.map.getCenter()
+
+    console.log(lng, lat)
   }
 
   render() {
