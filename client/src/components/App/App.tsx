@@ -3,6 +3,7 @@ import './App.css';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import uniqBy from 'lodash/uniqBy';
+import View360 from '../View360/View360';
 
 interface Item {
   id: string,
@@ -112,12 +113,7 @@ export default class App extends Component {
   render() {
     return (
       <div className='App'>
-        <h1> Form </h1>
-        {this.dataForm()}
-        <div>
-          <br />
-          {this.dataIndex()}
-        </div>
+        <View360 />
       </div>
     );
   }
