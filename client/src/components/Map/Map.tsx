@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
-import uniqBy from 'lodash/uniqBy';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import "./Map.css"
 
-interface Item {
+interface Location {
   id: string,
   title: string,
   description: string,
@@ -16,11 +15,20 @@ interface Item {
   }
 }
 
-export default class Map extends Component {
-  state = {};
+interface State {
+  locations: Location[]
+}
+
+export default class Map extends Component<{}, State> {
+  constructor(props, state) {
+    super(props, state);
+
+    this.state = {
+      locations: []
+    };
+  }
 
   map: any = null
-
 
   componentDidMount() {
     if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
@@ -64,7 +72,7 @@ export default class Map extends Component {
 
     const { lng, lat } = this.map.getCenter()
 
-    let locations: Item[] = []
+    let locations: Location[] = []
 
     await firebase
       .firestore()
@@ -72,24 +80,37 @@ export default class Map extends Component {
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
-          const {
-            title,
-            description
-          } = doc.data()
+          const id = doc.id
 
-          locations = uniqBy([
-            ...locations,
-            {
+          const isOnMap = this.state.locations.some(location => location.id === id)
+
+          if (!isOnMap) {
+            const {
               title,
-              description,
-              id: doc.id,
-              coordinates: {
-                lng: lng + (Math.random() - 0.5) / 10,
-                lat: lat + (Math.random() - 0.5) / 10
-              },
-            }], 'id')
+              description
+            } = doc.data()
+
+            locations = [
+              ...locations,
+              {
+                title,
+                description,
+                id,
+                coordinates: {
+                  lng: lng + (Math.random() - 0.5) / 10,
+                  lat: lat + (Math.random() - 0.5) / 10
+                },
+              }]
+          }
         });
       });
+
+    this.setState({
+      locations: [
+        ...this.state.locations,
+        ...locations
+      ]
+    })
 
 
     for (const location of locations) {
