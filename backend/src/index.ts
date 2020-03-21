@@ -6,9 +6,9 @@ import { resolve, join } from 'path';
 
 const app = express()
 
+app.use(favicon(join(__dirname, '..', 'client', 'favicon.ico')))
 app.use(serveStatic(resolve("./client")))
 app.use(bodyParser.json())
-app.use(favicon(join(__dirname, '..', 'client', 'favicon.ico')))
 
 app.on('ready', () => {
   const port = "8080";
