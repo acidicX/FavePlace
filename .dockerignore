@@ -1,0 +1,11 @@
+# git
+.git
+.github
+
+# node
+node_modules
+
+# docker
+Dockerfile
+docker-compose.yml
+docker-compose.dev.yml
