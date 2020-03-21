@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import './App.css';
 import { View } from '../View/View';
 import Map from '../Map/Map'
@@ -7,9 +7,9 @@ import Map from '../Map/Map'
 
 export default () => (
   <div className="App">
-    <Routes>
-      <Route path="/" element={<Map />} />
-      <Route path="/view/:id" element={<View />} />
-    </Routes>
+    <Switch>
+      <Route path="/" exact><Map /></Route>
+      <Route path="/view/:id"><View /></Route>
+    </Switch>
   </div>
 );

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { withRouter } from "react-router-dom";
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import firebase from 'firebase/app';
+import data from '../../data.json';
 import 'firebase/firestore';
 import "./Map.css"
 
@@ -15,16 +17,19 @@ interface Location {
   }
 }
 
+
 interface State {
   locations: Location[]
+  images: string[]
 }
 
-export default class Map extends Component<{}, State> {
+class Map extends Component<RouteComponentProps, State> {
   constructor(props, state) {
     super(props, state);
 
     this.state = {
-      locations: []
+      locations: [],
+      images: []
     };
   }
 
@@ -62,6 +67,10 @@ export default class Map extends Component<{}, State> {
       map.on('dragend', this.fetchLocations)
 
       this.map = map
+
+      this.setState({
+        images: Object.keys(data.assets).map(key => key)
+      });
     }
   }
 
@@ -72,7 +81,9 @@ export default class Map extends Component<{}, State> {
 
     const { lng, lat } = this.map.getCenter()
 
-    let locations: Location[] = []
+    const { locations, images } = this.state
+
+    let newLocations: Location[] = []
 
     await firebase
       .firestore()
@@ -82,7 +93,7 @@ export default class Map extends Component<{}, State> {
         querySnapshot.forEach(doc => {
           const id = doc.id
 
-          const isOnMap = this.state.locations.some(location => location.id === id)
+          const isOnMap = locations.some(location => location.id === id)
 
           if (!isOnMap) {
             const {
@@ -90,8 +101,8 @@ export default class Map extends Component<{}, State> {
               description
             } = doc.data()
 
-            locations = [
-              ...locations,
+            newLocations = [
+              ...newLocations,
               {
                 title,
                 description,
@@ -107,23 +118,22 @@ export default class Map extends Component<{}, State> {
 
     this.setState({
       locations: [
-        ...this.state.locations,
-        ...locations
+        ...locations,
+        ...newLocations
       ]
     })
 
-
-    for (const location of locations) {
+    for (const newLocation of newLocations) {
       const el = document.createElement('div');
       el.className = 'marker';
       el.style.backgroundImage = `url("https://docs.mapbox.com/mapbox-gl-js/assets/washington-monument.jpg")`
 
       const marker = new mapboxgl.Marker(el)
-        .setLngLat([location.coordinates.lng, location.coordinates.lat])
+        .setLngLat([newLocation.coordinates.lng, newLocation.coordinates.lat])
         .addTo(this.map);
 
       marker.getElement().addEventListener('click', () => {
-        console.log('show image')
+        this.props.history.push(`/view/${images[Math.floor(Math.random() * images.length)]}`)
       });
     }
   }
@@ -136,3 +146,5 @@ export default class Map extends Component<{}, State> {
     );
   }
 }
+
+export default withRouter(Map);
