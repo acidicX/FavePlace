@@ -47,6 +47,15 @@ jobs:
             cd fav-place-taxi
             rm -f .env && touch .env
             echo "PRIVATE_IP=10.0.0.6" >> .env
+            cd client
+            rm -f .env && touch .env
+            echo "REACT_APP_FIREBASE_API_KEY=AIzaSyBEz6m8XjVVhx3G54ntUq74sHH06HUzZpM" >> .env
+            echo "REACT_APP_FIREBASE_AUTH_DOMAIN=favorite-place-taxi.firebaseapp.com" >> .env
+            echo "REACT_APP_FIREBASE_DATABASE_URL=https://favorite-place-taxi.firebaseio.com" >> .env
+            echo "REACT_APP_FIREBASE_PROJECT_ID=favorite-place-taxi" >> .env
+            echo "REACT_APP_FIREBASE_STORAGE_BUCKET=favorite-place-taxi.appspot.com" >> .env
+            echo "REACT_APP_FIREBASE_MESSAGING_SENDER_ID=520966478997" >> .env
+            echo "REACT_APP_FIREBASE_APP_ID=1:520966478997:web:97fd549437d184b1ec0f9c" >> .env
 
       - name: executing remote ssh commands - docker-compose
         uses: appleboy/ssh-action@master
