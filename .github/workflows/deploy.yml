@@ -3,7 +3,7 @@ name: Build and Deploy Stage
 on:
   push:
     branches:
-      - 'master'
+      - 'aframe-360'
   repository_dispatch:
     types: trigger-deploy
 
