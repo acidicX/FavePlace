@@ -1,4 +1,4 @@
-import * as AFrame from 'aframe';
+import 'aframe';
 import React from 'react';
 import './View360.css';
 
