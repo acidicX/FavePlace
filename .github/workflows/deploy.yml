@@ -1,0 +1,63 @@
+name: Build and Deploy Stage
+
+on:
+  push:
+    branches:
+      - 'master'
+  repository_dispatch:
+    types: trigger-deploy
+
+jobs:
+  deploy-hetzner-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: copy files via ssh
+        uses: appleboy/scp-action@master
+        with:
+          source: "./**"
+          target: fav-place-taxi
+          host: ${{ secrets.HCLOUD_HOST }}
+          username: ${{ secrets.HCLOUD_SSH_USER }}
+          key: ${{ secrets.HCLOUD_SSH_PRIVATE_KEY }}
+          rm: true
+
+      - name: executing remote ssh commands - system setup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HCLOUD_HOST }}
+          username: ${{ secrets.HCLOUD_SSH_USER }}
+          key: ${{ secrets.HCLOUD_SSH_PRIVATE_KEY }}
+          script: |
+            sysctl -w vm.max_map_count=262144
+            apt update && apt --yes upgrade
+
+      - name: executing remote ssh commands - setting .env
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HCLOUD_HOST }}
+          username: ${{ secrets.HCLOUD_SSH_USER }}
+          passphrase: ${{ secrets.HCLOUD_SSH_PASSPHRASE }}
+          key: ${{ secrets.HCLOUD_SSH_PRIVATE_KEY }}
+          script: |
+            cd fav-place-taxi
+            rm -f .env && touch .env
+            echo "PRIVATE_IP=10.0.0.6" >> .env
+
+      - name: executing remote ssh commands - docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HCLOUD_HOST }}
+          username: ${{ secrets.HCLOUD_SSH_USER }}
+          passphrase: ${{ secrets.HCLOUD_SSH_PASSPHRASE }}
+          key: ${{ secrets.HCLOUD_SSH_PRIVATE_KEY }}
+          script: |
+            cd fav-place-taxi
+            docker-compose -f docker-compose.yml pull
+            docker-compose -f docker-compose.yml build
+            docker-compose -f docker-compose.yml down
+            docker-compose -f docker-compose.yml up -d
