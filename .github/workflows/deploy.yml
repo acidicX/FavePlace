@@ -50,6 +50,7 @@ jobs:
             cd client
             rm -f .env && touch .env
             echo "PUBLIC_URL=https://fav-place-taxi.peerigon.com" >> .env
+            echo "REACT_APP_MAPBOX_ACCESS_TOKEN=pk.eyJ1IjoibWFydGluZ2Fzc25lciIsImEiOiJjazgxbXVpcmYwY2g5M29td3c0cTdleXU4In0.luUjtUyLz_gDnfnx_X7g3g" >> .env
             echo "REACT_APP_FIREBASE_API_KEY=AIzaSyBEz6m8XjVVhx3G54ntUq74sHH06HUzZpM" >> .env
             echo "REACT_APP_FIREBASE_AUTH_DOMAIN=favorite-place-taxi.firebaseapp.com" >> .env
             echo "REACT_APP_FIREBASE_DATABASE_URL=https://favorite-place-taxi.firebaseio.com" >> .env
