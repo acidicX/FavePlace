@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { withRouter, RouteComponentProps, Link } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import firebase from 'firebase/app';
 import data from '../../data.json';
 import 'firebase/firestore';
 import './Map.css';
+import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
+import { ListOutlined, AddAPhoto, Info } from '@material-ui/icons';
 
 interface Location {
   id: string;
@@ -43,10 +45,10 @@ class Map extends Component<RouteComponentProps, State> {
         style: 'mapbox://styles/martingassner/ck824oanx0aew1jmm6z5w26e0',
         center: {
           lat: 51.5167,
-          lng: 9.9167
+          lng: 9.9167,
         },
-        zoom: 5
-      }
+        zoom: 5,
+      };
 
       const map = new mapboxgl.Map(mapOptions);
 
@@ -80,7 +82,7 @@ class Map extends Component<RouteComponentProps, State> {
   }
 
   fetchLocations = async () => {
-    const zoom = this.map.getZoom()
+    const zoom = this.map.getZoom();
     const { lng, lat } = this.map.getCenter();
 
     if (this.map.isMoving() || zoom < 8) {
@@ -143,6 +145,21 @@ class Map extends Component<RouteComponentProps, State> {
     return (
       <div className="Map">
         <div id="map"></div>
+        <BottomNavigation showLabels>
+          <BottomNavigationAction
+            component={Link}
+            to="/list"
+            label="List"
+            icon={<ListOutlined />}
+          />
+          <BottomNavigationAction
+            component={Link}
+            to="/upload"
+            label="Upload"
+            icon={<AddAPhoto />}
+          />
+          <BottomNavigationAction label="About" icon={<Info />} />
+        </BottomNavigation>
       </div>
     );
   }
