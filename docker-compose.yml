@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  backend:
+    build: .
+    container_name: favorite_place_taxi_backend
+    ports:
+      - ${PRIVATE_IP}:8080:8080
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - fpt
+
+networks:
+  fpt:

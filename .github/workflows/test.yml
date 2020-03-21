@@ -1,0 +1,42 @@
+name: Test Client
+
+on:
+  pull_request:
+    paths:
+      - client/**
+      - .github/workflows/test.yml
+
+jobs:
+  test-client:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: |
+          npm ci
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Test client code
+        working-directory: ./client
+        run: npm run test
+        env:
+          CI: true
+
+      - name: Build client code
+        working-directory: ./client
+        run: npm run build
+        env:
+          CI: true
