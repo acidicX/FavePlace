@@ -1,16 +1,17 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import './App.css';
-import { Home } from '../Home/Home';
 import { View } from '../View/View';
+import Map from '../Map/Map'
 import UploadForm from '../UploadForm/UploadForm';
+
 
 export default () => (
   <div className="App">
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/view/:id" element={<View />} />
+    <Switch>
+      <Route path="/" exact><Map /></Route>
+      <Route path="/view/:id"><View /></Route>
       <Route path="/upload" element={<UploadForm />} />
-    </Routes>
+    </Switch>
   </div>
 );
