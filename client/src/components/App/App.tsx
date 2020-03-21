@@ -113,7 +113,10 @@ export default class App extends Component {
   render() {
     return (
       <div className='App'>
-        <View360 />
+        <View360 
+          imagePath="/images/360/Milano-Galleria_Carolin-Windloff.jpg"
+          imageText="Galleria, Milano, Itlay"
+        />
       </div>
     );
   }
