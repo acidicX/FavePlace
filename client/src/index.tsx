@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import * as AFrame from 'aframe';
 import './index.css';
 import App from './components/App/App';
 import * as serviceWorker from './serviceWorker';
@@ -15,6 +16,7 @@ const config = {
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
 }
 
+console.debug("Loading AFrame: " + AFrame.version);
 firebase.initializeApp(config);
 firebase.firestore();
 
