@@ -19,6 +19,8 @@ import {
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
+import UploadForm from '../UploadForm/UploadForm';
+import { GeoLocation } from '../../types';
 
 interface Location {
   id: string;
@@ -33,6 +35,7 @@ interface Location {
 interface State {
   selectedPoint: mapboxgl.LngLat | null;
   drawerIsOpen: boolean;
+  uploadIsOpen: boolean;
   showRequestPendingNotification: boolean;
   showRequestCompleteNotification: boolean;
   locations: Location[];
@@ -48,6 +51,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     this.state = {
       selectedPoint: null,
       drawerIsOpen: false,
+      uploadIsOpen: false,
       showRequestPendingNotification: false,
       showRequestCompleteNotification: false,
       locations: [],
@@ -84,6 +88,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
           accessToken: mapboxgl.accessToken,
           mapboxgl: mapboxgl,
           marker: false,
+          placeholder: 'Mein Lieblingsort ist...',
         })
       );
 
@@ -194,6 +199,12 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     }
   };
 
+  toggleUpload = () => {
+    this.setState({
+      uploadIsOpen: !this.state.uploadIsOpen,
+    });
+  };
+
   toggleDrawer = () => {
     this.setState({
       drawerIsOpen: !this.state.drawerIsOpen,
@@ -247,7 +258,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
           onClose={this.requestSaved}
         >
           <Alert icon={<CircularProgress size={20} />} severity="info">
-            Sharing your request with other users...
+            Wir suchen Leute in der Nähe deines Lieblingsortes...
           </Alert>
         </Snackbar>
         <Snackbar
@@ -257,7 +268,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
           onClose={this.requestCompleted}
         >
           <Alert severity="success">
-            We'll notify you once your taxi is ready! Have a good day.
+            Wir benachrichtigen dich, sobald jemand deinen Lieblingsort besucht hat!
           </Alert>
         </Snackbar>
         <Drawer anchor="bottom" open={this.state.drawerIsOpen} onClose={() => this.toggleDrawer()}>
@@ -266,50 +277,34 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
               <ListItemIcon>
                 <PinDrop />
               </ListItemIcon>
-              <ListItemText>Someone take me here</ListItemText>
+              <ListItemText>Ich möchte hier hinreisen</ListItemText>
             </ListItem>
-            <ListItem
-              onClick={() => {
-                return this.map
-                  ? this.props.history.push(
-                      `/upload/${(this.map as mapboxgl.Map)
-                        .getCenter()
-                        .toArray()
-                        .reverse()
-                        .join('-')}`
-                    )
-                  : null;
-              }}
-            >
+            <ListItem onClick={() => this.toggleUpload}>
               <ListItemIcon>
                 <AddAPhoto />
               </ListItemIcon>
-              <ListItemText>Share experience here</ListItemText>
+              <ListItemText>Ich möchte einen neuen Ort teilen</ListItemText>
             </ListItem>
           </List>
+        </Drawer>
+        <Drawer anchor="bottom" open={this.state.uploadIsOpen} onClose={this.toggleUpload}>
+          {this.map && (
+            <UploadForm geo={((this.map as mapboxgl.Map).getCenter() as unknown) as GeoLocation} />
+          )}
         </Drawer>
         <BottomNavigation showLabels>
           <BottomNavigationAction
             component={Link}
             to="/list"
-            label="List"
+            label="Liste"
             icon={<ListOutlined />}
           />
           <BottomNavigationAction
-            component={Link}
-            to={`/upload/${
-              this.map
-                ? (this.map as mapboxgl.Map)
-                    .getCenter()
-                    .toArray()
-                    .reverse()
-                    .join('-')
-                : null
-            }`}
-            label="Upload"
+            onClick={this.toggleUpload}
+            label="Erstellen"
             icon={<AddAPhoto />}
           />
-          <BottomNavigationAction label="About" icon={<Info />} />
+          <BottomNavigationAction label="Über uns" icon={<Info />} />
         </BottomNavigation>
       </div>
     );

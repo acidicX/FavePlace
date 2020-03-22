@@ -6,9 +6,6 @@ import { MediaType, GeoLocation } from '../../types';
 import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core';
 import { TextField, Select } from 'formik-material-ui';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
-import { withRouter, RouteComponentProps } from 'react-router';
-
-type UploadRouteParams = GeoLocation;
 
 interface IFormValues {
   type: MediaType;
@@ -31,8 +28,11 @@ const initialValues: IFormValues = {
   file: '',
 };
 
-const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }) => {
-  const geo = { lat: match.params.lat, lng: match.params.lng };
+type UploadFormProps = {
+  geo: GeoLocation;
+};
+
+const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
   if (!geo.lat || !geo.lng) {
     return <div>Error: no lat / lng specified!</div>;
   }
@@ -84,8 +84,8 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth>
               <Field component={Select} name="type">
-                <MenuItem value={'image'}>Image</MenuItem>
-                <MenuItem value={'image360'}>360° Image</MenuItem>
+                <MenuItem value={'image'}>Foto</MenuItem>
+                <MenuItem value={'image360'}>360° Foto</MenuItem>
                 <MenuItem value={'video'}>Video</MenuItem>
               </Field>
               <ErrorMessage name="type" component="div" />
@@ -109,7 +109,7 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
                 }}
               />
               <label htmlFor="upload-button">
-                <Button component="span">Select file...</Button>
+                <Button component="span">Foto oder Video auswählen...</Button>
               </label>
               <ErrorMessage name="fileAsBlob" component="div" />
             </FormControl>
@@ -123,7 +123,7 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
               type="submit"
               disabled={isSubmitting}
             >
-              Submit
+              Hochladen
             </Button>
           </form>
         )}
@@ -132,4 +132,4 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
   );
 };
 
-export default withRouter(UploadForm);
+export default UploadForm;
