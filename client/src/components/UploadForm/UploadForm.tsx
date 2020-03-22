@@ -6,10 +6,7 @@ import { MediaType, GeoLocation } from '../../types';
 import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core';
 import { TextField, Select } from 'formik-material-ui';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
-import { withRouter, RouteComponentProps } from 'react-router';
 import firebase from 'firebase';
-
-type UploadRouteParams = GeoLocation;
 
 interface IFormValues {
   type: MediaType;
@@ -27,13 +24,16 @@ interface IFormErrors {
 
 const initialValues: IFormValues = {
   type: 'image',
-  title: 'test',
+  title: '',
   tags: ['test1'],
   file: '',
 };
 
-const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }) => {
-  const geo = { latitude: match.params.latitude, longitude: match.params.longitude };
+type UploadFormProps = {
+  geo: GeoLocation;
+};
+
+const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
   if (!geo.latitude || !geo.longitude) {
     return <div>Error: no lat / lng specified!</div>;
   }
@@ -89,48 +89,55 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
         }) => (
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth>
+              <FormControl fullWidth>
+                <Field
+                  className="UploadButton"
+                  id="upload-button"
+                  type="file"
+                  name="file"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setFieldValue('fileAsBlob', e.target.files[0]);
+                    }
+                  }}
+                />
+                <label htmlFor="upload-button">
+                  <Button component="span">Foto oder Video auswählen...</Button>
+                </label>
+                <ErrorMessage name="fileAsBlob" component="div" />
+              </FormControl>
+
               <Field component={Select} name="type">
-                <MenuItem value={'image'}>Image</MenuItem>
-                <MenuItem value={'image360'}>360° Image</MenuItem>
+                <MenuItem value={'image'}>Foto</MenuItem>
+                <MenuItem value={'image360'}>360° Foto</MenuItem>
                 <MenuItem value={'video'}>Video</MenuItem>
               </Field>
               <ErrorMessage name="type" component="div" />
             </FormControl>
 
             <FormControl fullWidth>
-              <Field component={TextField} type="text" name="title" />
+              <Field
+                component={TextField}
+                placeholder="Unser Lieblingsort..."
+                type="text"
+                name="title"
+              />
               <ErrorMessage name="title" component="div" />
             </FormControl>
 
-            <FormControl fullWidth>
-              <Field
-                className="UploadButton"
-                id="upload-button"
-                type="file"
-                name="file"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setFieldValue('fileAsBlob', e.target.files[0]);
-                  }
-                }}
-              />
-              <label htmlFor="upload-button">
-                <Button component="span">Select file...</Button>
-              </label>
-              <ErrorMessage name="fileAsBlob" component="div" />
-            </FormControl>
+            <div className="UploadActions">
+              {isSubmitting && <LinearProgress />}
 
-            {isSubmitting && <LinearProgress />}
-
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<CloudUploadIcon />}
-              type="submit"
-              disabled={isSubmitting}
-            >
-              Submit
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<CloudUploadIcon />}
+                type="submit"
+                disabled={isSubmitting}
+              >
+                Hochladen
+              </Button>
+            </div>
           </form>
         )}
       </Formik>
@@ -138,4 +145,4 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
   );
 };
 
-export default withRouter(UploadForm);
+export default UploadForm;
