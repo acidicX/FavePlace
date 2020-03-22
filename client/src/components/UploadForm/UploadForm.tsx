@@ -63,8 +63,8 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
           try {
             setSubmitting(true);
             const geoPoint = new firebase.firestore.GeoPoint(
-              (geo.latitude as unknown) as number,
-              (geo.longitude as unknown) as number
+              parseFloat(geo.latitude),
+              parseFloat(geo.longitude)
             );
 
             const snapshot = await uploadFile(type, title, tags, geoPoint, fileAsBlob);
