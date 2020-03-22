@@ -17,7 +17,6 @@ import {
 import { Alert } from '@material-ui/lab';
 import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
 import UploadForm from '../UploadForm/UploadForm';
-import { GeoLocation } from '../../types';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 
@@ -297,7 +296,12 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
         </Drawer>
         <Drawer anchor="bottom" open={this.state.uploadIsOpen} onClose={this.toggleUpload}>
           {this.map && (
-            <UploadForm geo={((this.map as mapboxgl.Map).getCenter() as unknown) as GeoLocation} />
+            <UploadForm
+              geo={{
+                latitude: (this.map as mapboxgl.Map).getCenter().lat.toString(),
+                longitude: (this.map as mapboxgl.Map).getCenter().lng.toString(),
+              }}
+            />
           )}
         </Drawer>
         <BottomNavigation showLabels>

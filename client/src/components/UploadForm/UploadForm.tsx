@@ -24,7 +24,7 @@ interface IFormErrors {
 
 const initialValues: IFormValues = {
   type: 'image',
-  title: 'test',
+  title: '',
   tags: ['test1'],
   file: '',
 };
@@ -89,6 +89,24 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
         }) => (
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth>
+              <FormControl fullWidth>
+                <Field
+                  className="UploadButton"
+                  id="upload-button"
+                  type="file"
+                  name="file"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setFieldValue('fileAsBlob', e.target.files[0]);
+                    }
+                  }}
+                />
+                <label htmlFor="upload-button">
+                  <Button component="span">Foto oder Video auswählen...</Button>
+                </label>
+                <ErrorMessage name="fileAsBlob" component="div" />
+              </FormControl>
+
               <Field component={Select} name="type">
                 <MenuItem value={'image'}>Foto</MenuItem>
                 <MenuItem value={'image360'}>360° Foto</MenuItem>
@@ -98,39 +116,28 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
             </FormControl>
 
             <FormControl fullWidth>
-              <Field component={TextField} type="text" name="title" />
+              <Field
+                component={TextField}
+                placeholder="Unser Lieblingsort..."
+                type="text"
+                name="title"
+              />
               <ErrorMessage name="title" component="div" />
             </FormControl>
 
-            <FormControl fullWidth>
-              <Field
-                className="UploadButton"
-                id="upload-button"
-                type="file"
-                name="file"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setFieldValue('fileAsBlob', e.target.files[0]);
-                  }
-                }}
-              />
-              <label htmlFor="upload-button">
-                <Button component="span">Foto oder Video auswählen...</Button>
-              </label>
-              <ErrorMessage name="fileAsBlob" component="div" />
-            </FormControl>
+            <div className="UploadActions">
+              {isSubmitting && <LinearProgress />}
 
-            {isSubmitting && <LinearProgress />}
-
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<CloudUploadIcon />}
-              type="submit"
-              disabled={isSubmitting}
-            >
-              Hochladen
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<CloudUploadIcon />}
+                type="submit"
+                disabled={isSubmitting}
+              >
+                Hochladen
+              </Button>
+            </div>
           </form>
         )}
       </Formik>
