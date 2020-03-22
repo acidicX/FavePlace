@@ -7,7 +7,7 @@ export default function About() {
             <h1 className="heading">FavePlace</h1>
             <div className="content">
                 <p>
-                    <span>Diese App ist im Rahmen des Heckathons </span>
+                    <span>Diese App ist im Rahmen des Hackathons </span>
                     <a target="_blank" rel="noopener noreferrer" href="https://wirvsvirushackathon.org/">#wirwvsvirushack</a>
                     <span> der Bundesregierung entstanden. Auf </span>
                     <a
