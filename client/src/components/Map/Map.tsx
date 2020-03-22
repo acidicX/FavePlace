@@ -25,10 +25,12 @@ interface Feature {
   properties: {
     id: string;
     title: string;
+    fullPath: string,
+    type: string,
   };
   geometry: {
     type: string;
-    coordinates: [number, number];
+    coordinates: number[];
   };
 }
 
@@ -198,6 +200,13 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
       }
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.map.isStyleLoaded()
+      && (prevProps.geodata.features.length !== this.props.geodata.features.length)) {
+      this.map.getSource('locations').setData(this.props.geodata);
     }
   }
 

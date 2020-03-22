@@ -7,18 +7,6 @@ import { List } from '../List/List';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 
-interface Location {
-  id: string;
-  title: string;
-  description: string;
-  fullPath: string;
-  type: string;
-  geo: {
-    latitude: number;
-    longitude: number;
-  };
-}
-
 interface GeoData {
   type: string;
   features: Feature[];
@@ -29,10 +17,12 @@ interface Feature {
   properties: {
     id: string;
     title: string;
+    fullPath: string,
+    type: string,
   };
   geometry: {
     type: string;
-    coordinates: [number, number];
+    coordinates: number[];
   };
 }
 
@@ -57,52 +47,40 @@ export default class App extends Component<{}, State> {
   }
 
   fetchLocations = async () => {
-    let newLocations: Location[] = [];
-
     await firebase
       .firestore()
       .collection('items')
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
+      .onSnapshot(querySnapshot => {
+        let features: Feature[] = []
+
+        querySnapshot.docs.forEach(doc => {
           const id = doc.id;
 
-          const { title, description, geo, fullPath, type } = doc.data();
+          const { title, geo, fullPath, type } = doc.data();
 
-          newLocations = [
-            ...newLocations,
-            {
-              title,
-              description,
+          const feature = {
+            type: 'Feature',
+            properties: {
               id,
-              geo,
+              title,
               fullPath,
               type,
             },
-          ];
-        });
-      });
-
-    this.setState({
-      geodata: {
-        type: 'FeatureCollection',
-        features: newLocations.map(location => {
-          return {
-            type: 'Feature',
-            properties: {
-              id: location.id,
-              title: location.title,
-              fullPath: location.fullPath,
-              type: location.type,
-            },
             geometry: {
               type: 'Point',
-              coordinates: [location.geo.longitude, location.geo.latitude],
+              coordinates: [geo.longitude, geo.latitude],
             },
-          };
-        }),
-      },
-    });
+          }
+          features.push(feature)
+        });
+
+        this.setState({
+          geodata: {
+            type: this.state.geodata.type,
+            features 
+          }
+        })
+      })
   };
 
   render() {
