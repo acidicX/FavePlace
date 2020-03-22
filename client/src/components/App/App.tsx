@@ -12,7 +12,7 @@ export default () => (
       <Route path="/" exact>
         <Map />
       </Route>
-      <Route path="/map/:lat-:lng-:zoom">
+      <Route path="/map/:lat_:lng_:zoom">
         <Map />
       </Route>
       <Route path="/list">
@@ -21,7 +21,7 @@ export default () => (
       <Route path="/view/:type/:id">
         <View />
       </Route>
-      <Route path="/upload/:lat-:lng">
+      <Route path="/upload/:latitude_:longitude">
         <UploadForm />
       </Route>
     </Switch>

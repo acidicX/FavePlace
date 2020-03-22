@@ -7,6 +7,7 @@ import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core
 import { TextField, Select } from 'formik-material-ui';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
 import { withRouter, RouteComponentProps } from 'react-router';
+import firebase from 'firebase';
 
 type UploadRouteParams = GeoLocation;
 
@@ -32,8 +33,8 @@ const initialValues: IFormValues = {
 };
 
 const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }) => {
-  const geo = { lat: match.params.lat, lng: match.params.lng };
-  if (!geo.lat || !geo.lng) {
+  const geo = { latitude: match.params.latitude, longitude: match.params.longitude };
+  if (!geo.latitude || !geo.longitude) {
     return <div>Error: no lat / lng specified!</div>;
   }
   return (
@@ -61,7 +62,12 @@ const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }
 
           try {
             setSubmitting(true);
-            const snapshot = await uploadFile(type, title, tags, geo, fileAsBlob);
+            const geoPoint = new firebase.firestore.GeoPoint(
+              (geo.latitude as unknown) as number,
+              (geo.longitude as unknown) as number
+            );
+
+            const snapshot = await uploadFile(type, title, tags, geoPoint, fileAsBlob);
             console.log(snapshot);
             setSubmitting(false);
           } catch (e) {
