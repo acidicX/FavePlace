@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "nocache": "^2.1.0",
     "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
