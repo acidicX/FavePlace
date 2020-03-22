@@ -24,7 +24,9 @@ interface State {
   images: string[];
 }
 
-class Map extends Component<RouteComponentProps, State> {
+type MapRouteParams = { lat: string; lng: string; zoom: string };
+
+class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
   constructor(props, state) {
     super(props, state);
 
@@ -37,17 +39,18 @@ class Map extends Component<RouteComponentProps, State> {
   map: any = null;
 
   componentDidMount() {
+    const { lat, lng, zoom } = this.props.match.params;
     if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
       mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-      const mapOptions = {
+      const mapOptions: mapboxgl.MapboxOptions = {
         container: 'map',
         style: 'mapbox://styles/martingassner/ck824oanx0aew1jmm6z5w26e0',
         center: {
-          lat: 51.5167,
-          lng: 9.9167,
+          lat: parseFloat(lat) || 51.5167,
+          lng: parseFloat(lng) || 9.9167,
         },
-        zoom: 5,
+        zoom: parseInt(zoom) || 5,
       };
 
       const map = new mapboxgl.Map(mapOptions);
@@ -88,6 +91,8 @@ class Map extends Component<RouteComponentProps, State> {
     if (this.map.isMoving() || zoom < 8) {
       return;
     }
+
+    this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
 
     const { locations, images } = this.state;
 

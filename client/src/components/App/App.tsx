@@ -12,6 +12,9 @@ export default () => (
       <Route path="/" exact>
         <Map />
       </Route>
+      <Route path="/map/:lat-:lng-:zoom">
+        <Map />
+      </Route>
       <Route path="/list">
         <List />
       </Route>
