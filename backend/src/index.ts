@@ -7,11 +7,11 @@ import { resolve, join } from 'path';
 const app = express()
 
 app.use(bodyParser.json())
-app.use(favicon(join(__dirname, '..', 'client', 'build', 'favicon.ico')))
+app.use(favicon(join(__dirname, '..', 'client', 'favicon.ico')))
 app.use(serveStatic(resolve("./client")))
 
 app.get('*', function (req, res) {
-  res.sendFile(join(__dirname, '..', 'client', 'build', 'index.html'));
+  res.sendFile(join(__dirname, '..', 'client', 'index.html'));
 });
 
 app.on('ready', () => {
