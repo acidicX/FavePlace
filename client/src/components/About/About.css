@@ -1,0 +1,14 @@
+.about {
+    display: flex;
+    flex-direction: column;
+    background-color: #e2dbcc;
+    padding: 15px 20px;
+}
+.heading {
+    text-align: center;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
