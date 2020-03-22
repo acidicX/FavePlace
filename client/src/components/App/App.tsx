@@ -21,7 +21,7 @@ export default () => (
       <Route path="/view/:id">
         <View />
       </Route>
-      <Route path="/upload">
+      <Route path="/upload/:lat-:lng">
         <UploadForm />
       </Route>
     </Switch>
