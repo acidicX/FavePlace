@@ -33,6 +33,18 @@
   }
 }
 
+.Sharing {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+}
+
+.Viewer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .Snackbar {
   bottom: 70px !important;
 }

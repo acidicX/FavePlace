@@ -9,14 +9,19 @@ export interface IView360Props {
 
 const View360: React.SFC<IView360Props> = ({ imagePath, imageText }) => {
   return (
-    <div className='Scene360'>
-      <a-scene vr-mode-ui="enabled: true">
+    <div className="Scene360">
+      <a-scene loading-screen="backgroundColor: black" vr-mode-ui="enabled: true">
         <a-sky src={imagePath} rotation="0 -130 0"></a-sky>
-        <a-text font="kelsonsans" value={imageText} width="6" position="-2.5 0.25 -1.5"
-                rotation="0 15 0"></a-text>
+        <a-text
+          font="kelsonsans"
+          value={imageText}
+          width="6"
+          position="-2.5 0.25 -1.5"
+          rotation="0 15 0"
+        ></a-text>
       </a-scene>
     </div>
-  )
-}
+  );
+};
 
-export default View360
+export default View360;
