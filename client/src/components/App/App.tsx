@@ -85,6 +85,8 @@ export default class App extends Component<{}, State> {
         });
       });
 
+      console.log(newLocations)
+
     this.setState({
       geodata: {
         type: 'FeatureCollection',
@@ -122,7 +124,7 @@ export default class App extends Component<{}, State> {
           <Route path="/" exact>
             <Map geodata={this.state.geodata} />
           </Route>
-          <Route path="/map/:lat-:lng-:zoom">
+          <Route path="/map/:lat/:lng/:zoom">
             <Map geodata={this.state.geodata} />
           </Route>
           <Route path="/list">
@@ -131,7 +133,7 @@ export default class App extends Component<{}, State> {
           <Route path="/view/:type/:id">
             <View />
           </Route>
-          <Route path="/upload/:lat-:lng">
+          <Route path="/upload/:latitude/:longitude">
             <UploadForm />
           </Route>
         </Switch>

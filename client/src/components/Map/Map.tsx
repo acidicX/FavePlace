@@ -114,7 +114,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           clusterMaxZoom: 14,
           clusterRadius: 50
         });
-  
+
         this.map.addLayer({
           id: 'clusters',
           type: 'circle',
@@ -141,7 +141,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             ]
           }
         });
-  
+
         this.map.addLayer({
           id: 'cluster-count',
           type: 'symbol',
@@ -153,7 +153,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             'text-size': 12
           }
         });
-  
+
         this.map.addLayer({
           id: 'unclustered-point',
           type: 'circle',
@@ -201,7 +201,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
       });
 
       if (this.props.match.path === '/') {
-        this.props.history.push(`/map/${initialLat}-${initialLng}-${initialZoom}`);
+        this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
       }
     }
   }
@@ -210,7 +210,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
     const zoom = this.map.getZoom();
     const { lng, lat } = this.map.getCenter();
 
-    this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
+    this.props.history.push(`/map/${lat}/${lng}/${zoom}`);
   }
 
   toggleDrawer = () => {
@@ -295,7 +295,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
                       .getCenter()
                       .toArray()
                       .reverse()
-                      .join('-')}`
+                      .join('/')}`
                   )
                   : null;
               }}
@@ -322,7 +322,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
                   .getCenter()
                   .toArray()
                   .reverse()
-                  .join('-')
+                  .join('/')
                 : null
               }`}
             label="Upload"
