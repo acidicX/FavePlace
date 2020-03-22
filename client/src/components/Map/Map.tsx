@@ -2,40 +2,34 @@ import React, { Component } from 'react';
 import { withRouter, RouteComponentProps, Link } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import firebase from 'firebase/app';
-import data from '../../data.json';
-import 'firebase/firestore';
 import './Map.css';
 import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
 import { ListOutlined, AddAPhoto, Info } from '@material-ui/icons';
 
-interface Location {
-  id: string;
-  title: string;
-  description: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
+interface GeoData {
+  type: string,
+  features: Feature[]
 }
 
-interface State {
-  locations: Location[];
-  images: string[];
+interface Feature {
+  type: string,
+  properties: {
+    id: string,
+    title: string,
+  },
+  geometry: {
+    type: string,
+    coordinates: [number, number]
+  }
+}
+
+interface Props {
+  geodata: GeoData
 }
 
 type MapRouteParams = { lat: string; lng: string; zoom: string };
 
-class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
-  constructor(props, state) {
-    super(props, state);
-
-    this.state = {
-      locations: [],
-      images: [],
-    };
-  }
-
+class Map extends Component<RouteComponentProps<MapRouteParams> & Props, {}> {
   map: any = null;
 
   componentDidMount() {
@@ -76,17 +70,95 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
           trackUserLocation: true,
         })
       );
-
       this.map = map;
 
       this.map.on('moveend', this.onMoveend);
 
-      this.setState({
-        images: Object.keys(data.assets).map(key => key),
-      }, () => {
-        this.fetchLocations()
-      });
+      this.map.on('load', () => {
+        this.map.addSource('locations', {
+          type: 'geojson',
+          data: this.props.geodata,
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50
+        });
 
+        this.map.addLayer({
+          id: 'clusters',
+          type: 'circle',
+          source: 'locations',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': [
+              'step',
+              ['get', 'point_count'],
+              '#51bbd6',
+              100,
+              '#f1f075',
+              300,
+              '#f28cb1'
+            ],
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              20,
+              100,
+              30,
+              300,
+              40
+            ]
+          }
+        });
+
+        this.map.addLayer({
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'locations',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+          }
+        });
+
+        this.map.addLayer({
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'locations',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#11b4da',
+            'circle-radius': 10,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+          }
+        });
+
+        this.map.on('click', 'clusters', (e) => {
+          const features = this.map.queryRenderedFeatures(e.point, {
+            layers: ['clusters']
+          });
+          const clusterId = features[0].properties.cluster_id;
+          this.map.getSource('locations').getClusterExpansionZoom(
+            clusterId,
+            (err, zoom) => {
+              if (err) return;
+
+              this.map.easeTo({
+                center: features[0].geometry.coordinates,
+                zoom: zoom
+              });
+            }
+          );
+        });
+
+        this.map.on('click', 'unclustered-point', (e) => {
+          const imagePath = e.features[0].properties.imagePath
+
+          this.props.history.push(`/view/${imagePath}`);
+        });
+      })
 
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}-${initialLng}-${initialZoom}`);
@@ -99,69 +171,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     const { lng, lat } = this.map.getCenter();
 
     this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
-
-    this.fetchLocations()
   }
-
-
-  fetchLocations = async () => {
-    const { zoom, lat, lng } = this.props.match.params
-
-    if (this.map.isMoving() || parseFloat(zoom) < 8) {
-      return;
-    }
-
-    const { locations, images } = this.state;
-
-    let newLocations: Location[] = [];
-
-    await firebase
-      .firestore()
-      .collection('items')
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          const id = doc.id;
-
-          const isOnMap = locations.some(location => location.id === id);
-
-          if (!isOnMap) {
-            const { title, description } = doc.data();
-
-            newLocations = [
-              ...newLocations,
-              {
-                title,
-                description,
-                id,
-                coordinates: {
-                  lng: parseFloat(lng) + (Math.random() - 0.5) / 10,
-                  lat: parseFloat(lat) + (Math.random() - 0.5) / 10,
-                },
-              },
-            ];
-          }
-        });
-      });
-
-    this.setState({
-      locations: [...locations, ...newLocations],
-    });
-
-    for (const newLocation of newLocations) {
-      const el = document.createElement('div');
-      el.className = 'marker';
-      el.style.backgroundImage = `url("https://docs.mapbox.com/mapbox-gl-js/assets/washington-monument.jpg")`;
-
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([newLocation.coordinates.lng, newLocation.coordinates.lat])
-        .addTo(this.map);
-
-      marker.getElement().addEventListener('click', () => {
-        this.props.history.push(`/view/${images[Math.floor(Math.random() * images.length)]}`);
-      });
-    }
-  };
 
   render() {
     return (
