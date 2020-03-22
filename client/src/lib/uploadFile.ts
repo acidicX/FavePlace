@@ -1,12 +1,12 @@
 import firebase from 'firebase';
 import { v4 } from 'uuid';
-import { MediaType, GeoLocation, FirebaseItem } from '../types';
+import { MediaType, FirebaseItem } from '../types';
 
 export async function uploadFile(
   type: MediaType,
   title: string,
   tags: Array<string>,
-  geo: GeoLocation,
+  geo: FirebaseItem['geo'],
   blob: Blob
 ) {
   const storageRef = firebase.storage().ref();
