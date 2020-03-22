@@ -31,7 +31,7 @@ interface Location {
 }
 
 interface State {
-  selectedPoint: mapboxgl.LngLatLike | null;
+  selectedPoint: mapboxgl.LngLat | null;
   drawerIsOpen: boolean;
   showRequestPendingNotification: boolean;
   showRequestCompleteNotification: boolean;
@@ -210,8 +210,17 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
 
   requestSaved = () => {
     if (this.state.selectedPoint !== null) {
-      // TODO: persist!
       new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map);
+
+      firebase
+        .firestore()
+        .collection('requests')
+        .add({
+          geo: {
+            lng: this.state.selectedPoint.lng,
+            lat: this.state.selectedPoint.lat,
+          },
+        });
     }
 
     this.setState({
@@ -259,7 +268,19 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
               </ListItemIcon>
               <ListItemText>Someone take me here</ListItemText>
             </ListItem>
-            <ListItem>
+            <ListItem
+              onClick={() => {
+                return this.map
+                  ? this.props.history.push(
+                      `/upload/${(this.map as mapboxgl.Map)
+                        .getCenter()
+                        .toArray()
+                        .reverse()
+                        .join('-')}`
+                    )
+                  : null;
+              }}
+            >
               <ListItemIcon>
                 <AddAPhoto />
               </ListItemIcon>
@@ -276,7 +297,15 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
           />
           <BottomNavigationAction
             component={Link}
-            to="/upload"
+            to={`/upload/${
+              this.map
+                ? (this.map as mapboxgl.Map)
+                    .getCenter()
+                    .toArray()
+                    .reverse()
+                    .join('-')
+                : null
+            }`}
             label="Upload"
             icon={<AddAPhoto />}
           />
