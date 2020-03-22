@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import './App.css';
-import { View } from '../View/View';
+import View from '../View/View';
 import Map from '../Map/Map';
 import UploadForm from '../UploadForm/UploadForm';
 import { List } from '../List/List';
@@ -18,10 +18,10 @@ export default () => (
       <Route path="/list">
         <List />
       </Route>
-      <Route path="/view/:id">
+      <Route path="/view/:type/:id">
         <View />
       </Route>
-      <Route path="/upload">
+      <Route path="/upload/:lat-:lng">
         <UploadForm />
       </Route>
     </Switch>

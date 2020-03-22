@@ -2,12 +2,13 @@ import React from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import './UploadForm.css';
 import { uploadFile } from '../../lib/uploadFile';
-import { MediaType } from '../../types';
+import { MediaType, GeoLocation } from '../../types';
 import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core';
 import { TextField, Select } from 'formik-material-ui';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
+import { withRouter, RouteComponentProps } from 'react-router';
 
-export interface IUploadFormProps {}
+type UploadRouteParams = GeoLocation;
 
 interface IFormValues {
   type: MediaType;
@@ -30,7 +31,11 @@ const initialValues: IFormValues = {
   file: '',
 };
 
-const UploadForm: React.SFC<IUploadFormProps> = () => {
+const UploadForm: React.SFC<RouteComponentProps<UploadRouteParams>> = ({ match }) => {
+  const geo = { lat: match.params.lat, lng: match.params.lng };
+  if (!geo.lat || !geo.lng) {
+    return <div>Error: no lat / lng specified!</div>;
+  }
   return (
     <div className="UploadForm">
       <Formik
@@ -56,7 +61,7 @@ const UploadForm: React.SFC<IUploadFormProps> = () => {
 
           try {
             setSubmitting(true);
-            const snapshot = await uploadFile(type, title, tags, fileAsBlob);
+            const snapshot = await uploadFile(type, title, tags, geo, fileAsBlob);
             console.log(snapshot);
             setSubmitting(false);
           } catch (e) {
@@ -127,4 +132,4 @@ const UploadForm: React.SFC<IUploadFormProps> = () => {
   );
 };
 
-export default UploadForm;
+export default withRouter(UploadForm);
