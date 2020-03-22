@@ -327,7 +327,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             label="Erstellen"
             icon={<AddAPhoto />}
           />
-          <BottomNavigationAction label="Über uns" icon={<Info />} />
+           <BottomNavigationAction component={Link} to="/about" label="Über uns" icon={<Info />} />
         </BottomNavigation>
       </div>
     );

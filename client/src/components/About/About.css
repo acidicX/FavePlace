@@ -1,0 +1,15 @@
+.about {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(234, 140, 32, 0.393);
+    padding: 15px 20px;
+    height: 100vh;
+}
+.heading {
+    text-align: center;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

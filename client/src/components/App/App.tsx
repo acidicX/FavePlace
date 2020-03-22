@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import './App.css';
 import View from '../View/View';
 import Map from '../Map/Map';
+import About from '../About/About';
 import { List } from '../List/List';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -102,6 +103,9 @@ export default class App extends Component<{}, State> {
           </Route>
           <Route path="/view/:type/:id">
             <View />
+          </Route>
+          <Route path="/about">
+            <About />
           </Route>
         </Switch>
       </div>
