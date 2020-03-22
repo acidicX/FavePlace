@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import ImageViewer from 'react-viewer';
+import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
+import { Share } from '@material-ui/icons';
 import View360 from '../View360/View360';
 import { MediaType, FirebaseItem } from '../../types';
 import firebase from 'firebase';
@@ -8,6 +10,23 @@ import firebase from 'firebase';
 type ViewRouteParams = {
   id: string;
   type: MediaType;
+};
+
+const Sharing: React.FunctionComponent<{ title: string }> = ({ title }) => {
+  return window.navigator.share ? (
+    <BottomNavigation className="Sharing" showLabels>
+      <BottomNavigationAction
+        onClick={() =>
+          window.navigator.share({
+            url: window.location.href,
+            title,
+          })
+        }
+        icon={<Share />}
+        label="Teilen"
+      />
+    </BottomNavigation>
+  ) : null;
 };
 
 const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match }) => {
@@ -30,7 +49,7 @@ const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match }) => {
 
   if (type === 'image') {
     return (
-      <aside>
+      <aside className="Viewer">
         <ImageViewer
           visible={true}
           images={[
@@ -40,22 +59,25 @@ const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match }) => {
             },
           ]}
         />
+        <Sharing title={title} />
       </aside>
     );
   }
 
   if (type === 'image360') {
     return (
-      <aside>
+      <aside className="Viewer">
         <View360 imagePath={src} imageText={title} />
+        <Sharing title={title} />
       </aside>
     );
   }
 
   if (type === 'video') {
     return (
-      <aside>
+      <aside className="Viewer">
         <video src={src} title={title} />
+        <Sharing title={title} />
       </aside>
     );
   }
