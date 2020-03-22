@@ -25,6 +25,41 @@ export default function About() {
                 <p>
                     Jeder Mensch lebt an einem anderen Ort und hat je nach Ausmaß der Ausgangsbeschränkung einen unterschiedlichen Bewegungsradius. Das nutzen wir: So können wir 360° Panoramen von den unterschiedlichsten Orten in unserer community-basierten WebApp sammeln und wieder zur Verfügung stellen - ganz ohne die Ausgangsbeschränkungen zu verletzen und ohne Ansteckungen zu riskieren.
                 </p>
+                <h1>Impressum</h1>
+                <p>
+                    <span>FavePlace ist eine Open Source Software: </span>
+                    <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://github.com/acidicX/FavePlace">
+                        https://github.com/acidicX/FavePlace
+                    </a>
+                </p>
+                <h3>Copyright / Urheberrecht und Nutzungsrecht</h3>
+                <p>
+                    Mit dem Hochladen der Bilder auf die Plattform gewähren sie dem Betreiber ein Nutzungsrecht für diese Bilder wie folgt:
+
+                    einfach
+                    zeitlich unbeschränkt
+                    räumlich unbeschränkt
+
+                    Die Übertragung und Einräumung weiterer Nutzungsrechte auf beziehungsweise für Dritte durch den Betreiber erfolgt nicht. Die  Weitergabe an Pressevertreter für eine redaktionelle Verwendung ist mit  Angabe des Urhebers (sofern verfügbar) zulässig.
+                    
+                </p>
+                <h3>Technischer Betrieb dieser Instanz</h3>
+
+                    unterstützt von:
+
+                    Peerigon GmbH
+
+                    Werner-von-Siemens-Str. 6
+
+                    86159 Augsburg
+
+                    Es gilt das Impressum der Peerigon GmbH.
+                    Es gilt die Datenschutzerklärung der Peerigon GmbH.
+
+
             </div>
         </div>
 
