@@ -194,25 +194,13 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
 
       this.map.on('moveend', this.onMoveend);
 
-      this.map.on('touchstart', event => {
-        if (event.originalEvent.touches.length > 1) {
-          return;
-        } else {
+      this.map.on('click', event => {
+        if (this.map.getZoom() >= 15) {
           this.setState({
             selectedPoint: event.lngLat,
           });
-          touchTimeout = setTimeout(() => {
-            this.toggleDrawer();
-          }, 800);
+          this.toggleDrawer();
         }
-      })
-
-      this.map.on('touchend', () => {
-        clearTouchTimeout()
-      })
-
-      this.map.on('move', () => {
-        clearTouchTimeout()
       })
 
       if (this.props.match.path === '/') {
