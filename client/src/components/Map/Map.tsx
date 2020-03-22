@@ -104,8 +104,6 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
 
       this.map = map;
 
-      map.on('moveend', this.onMoveend);
-
       this.map.on('load', () => {
         this.map.addSource('locations', {
           type: 'geojson',
@@ -193,12 +191,32 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
         });
       })
 
-      map.on('click', event => {
-        this.setState({
-          selectedPoint: event.lngLat,
-        });
-        this.toggleDrawer();
-      });
+      let touchTimeout;
+
+      let clearTouchTimeout = () => {
+        if (touchTimeout) {
+          clearTimeout(touchTimeout)
+        }
+      }
+
+      this.map.on('moveend', this.onMoveend);
+
+      this.map.on('touchstart', event => {
+        if (event.originalEvent.touches.length > 1) {
+          return;
+        } else {
+          this.setState({
+            selectedPoint: event.lngLat,
+          });
+          touchTimeout = setTimeout(() => {
+            this.toggleDrawer();
+          }, 800);
+        }
+      })
+
+      this.map.on('touchend', () => {
+        clearTouchTimeout()
+      })
 
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
