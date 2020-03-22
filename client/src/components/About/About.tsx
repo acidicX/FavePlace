@@ -38,28 +38,35 @@ export default function About() {
                 <h3>Copyright / Urheberrecht und Nutzungsrecht</h3>
                 <p>
                     Mit dem Hochladen der Bilder auf die Plattform gewähren sie dem Betreiber ein Nutzungsrecht für diese Bilder wie folgt:
-
-                    einfach
-                    zeitlich unbeschränkt
-                    räumlich unbeschränkt
-
+                </p>
+                <ul>
+                    <li>einfach</li>
+                    <li>zeitlich unbeschränkt</li>
+                    <li>räumlich unbeschränkt</li>
+                </ul>
+                <p>
                     Die Übertragung und Einräumung weiterer Nutzungsrechte auf beziehungsweise für Dritte durch den Betreiber erfolgt nicht. Die  Weitergabe an Pressevertreter für eine redaktionelle Verwendung ist mit  Angabe des Urhebers (sofern verfügbar) zulässig.
-                    
                 </p>
                 <h3>Technischer Betrieb dieser Instanz</h3>
+                <p>
+                    unterstützt von: <br></br><br></br>
 
-                    unterstützt von:
-
-                    Peerigon GmbH
-
-                    Werner-von-Siemens-Str. 6
-
-                    86159 Augsburg
-
-                    Es gilt das Impressum der Peerigon GmbH.
-                    Es gilt die Datenschutzerklärung der Peerigon GmbH.
-
-
+                    <span>
+                        Peerigon GmbH<br></br>
+                        Werner-von-Siemens-Str. 6<br></br>
+                        86159 Augsburg<br></br>
+                    </span>
+                </p>
+                <p>
+                    <span>Es gilt das </span>
+                    <a target="_blank" rel="noopener noreferrer" href="https://peerigon.com/de/kontakt">
+                        Impressum der Peerigon GmbH
+                        </a>
+                    <span>.<br></br></span>
+                    <span>Es gilt die </span>
+                    <a target="_blank" rel="noopener noreferrer" href="https://peerigon.com/de/datenschutz">Datenschutzerklärung der Peerigon GmbH</a>
+                    <span>.</span>
+                </p>
             </div>
         </div>
 
