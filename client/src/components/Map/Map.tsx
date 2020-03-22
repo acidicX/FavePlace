@@ -188,9 +188,9 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
 
       let clearTouchTimeout = () => {
         if (touchTimeout) {
-          clearTimeout(touchTimeout)
+          clearTimeout(touchTimeout);
         }
-      }
+      };
 
       this.map.on('moveend', this.onMoveend);
 
@@ -205,11 +205,11 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             this.toggleDrawer();
           }, 800);
         }
-      })
+      });
 
       this.map.on('touchend', () => {
-        clearTouchTimeout()
-      })
+        clearTouchTimeout();
+      });
 
       this.map.on('move', () => {
         clearTouchTimeout()
@@ -308,7 +308,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
               </ListItemIcon>
               <ListItemText>Ich möchte hier hinreisen</ListItemText>
             </ListItem>
-            <ListItem onClick={() => this.toggleUpload}>
+            <ListItem onClick={() => this.toggleUpload()}>
               <ListItemIcon>
                 <AddAPhoto />
               </ListItemIcon>
