@@ -1,7 +1,7 @@
 .about {
     display: flex;
     flex-direction: column;
-    background-color: #e2dbcc;
+    background-color: rgba(234, 140, 32, 0.393);
     padding: 15px 20px;
 }
 .heading {
