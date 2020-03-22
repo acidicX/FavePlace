@@ -126,7 +126,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             'circle-color': [
               'step',
               ['get', 'point_count'],
-              '#51bbd6',
+              '#EA8C20',
               100,
               '#f1f075',
               300,
@@ -154,7 +154,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           source: 'locations',
           filter: ['!', ['has', 'point_count']],
           paint: {
-            'circle-color': '#11b4da',
+            'circle-color': '#EA8C20',
             'circle-radius': 10,
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff',
@@ -184,36 +184,16 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
         });
       });
 
-      let touchTimeout;
-
-      let clearTouchTimeout = () => {
-        if (touchTimeout) {
-          clearTimeout(touchTimeout);
-        }
-      };
-
       this.map.on('moveend', this.onMoveend);
 
-      this.map.on('touchstart', event => {
-        if (event.originalEvent.touches.length > 1) {
-          return;
-        } else {
+      this.map.on('click', event => {
+        if (this.map.getZoom() >= 15) {
           this.setState({
             selectedPoint: event.lngLat,
           });
-          touchTimeout = setTimeout(() => {
-            this.toggleDrawer();
-          }, 800);
+          this.toggleDrawer();
         }
       });
-
-      this.map.on('touchend', () => {
-        clearTouchTimeout();
-      });
-
-      this.map.on('move', () => {
-        clearTouchTimeout()
-      })
 
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
