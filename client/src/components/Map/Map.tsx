@@ -211,6 +211,10 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
         clearTouchTimeout()
       })
 
+      this.map.on('move', () => {
+        clearTouchTimeout()
+      })
+
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
       }
