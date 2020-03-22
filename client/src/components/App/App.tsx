@@ -85,7 +85,6 @@ export default class App extends Component<{}, State> {
         });
       });
 
-      console.log(newLocations)
 
     this.setState({
       geodata: {
@@ -102,7 +101,7 @@ export default class App extends Component<{}, State> {
             },
             geometry: {
               type: 'Point',
-              coordinates: [location.geo.latitude, location.geo.longitude]
+              coordinates: [location.geo.longitude, location.geo.latitude]
             }
           }
         })
