@@ -6,6 +6,7 @@ import { MediaType, GeoLocation } from '../../types';
 import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core';
 import { TextField, Select } from 'formik-material-ui';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
+import firebase from 'firebase';
 
 interface IFormValues {
   type: MediaType;
@@ -33,7 +34,7 @@ type UploadFormProps = {
 };
 
 const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
-  if (!geo.lat || !geo.lng) {
+  if (!geo.latitude || !geo.longitude) {
     return <div>Error: no lat / lng specified!</div>;
   }
   return (
@@ -61,7 +62,12 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
 
           try {
             setSubmitting(true);
-            const snapshot = await uploadFile(type, title, tags, geo, fileAsBlob);
+            const geoPoint = new firebase.firestore.GeoPoint(
+              parseFloat(geo.latitude),
+              parseFloat(geo.longitude)
+            );
+
+            const snapshot = await uploadFile(type, title, tags, geoPoint, fileAsBlob);
             console.log(snapshot);
             setSubmitting(false);
           } catch (e) {

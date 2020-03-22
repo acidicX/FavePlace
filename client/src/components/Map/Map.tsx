@@ -126,7 +126,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
       );
 
       if (this.props.match.path === '/') {
-        this.props.history.push(`/map/${initialLat}-${initialLng}-${initialZoom}`);
+        this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
       }
     }
   }
@@ -135,7 +135,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     const zoom = this.map.getZoom();
     const { lng, lat } = this.map.getCenter();
 
-    this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
+    this.props.history.push(`/map/${lat}/${lng}/${zoom}`);
 
     this.fetchLocations();
   };
