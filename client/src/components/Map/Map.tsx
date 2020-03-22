@@ -16,33 +16,35 @@ import {
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
+import UploadForm from '../UploadForm/UploadForm';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 
 interface Feature {
-  type: string,
+  type: string;
   properties: {
-    id: string,
-    title: string,
-  },
+    id: string;
+    title: string;
+  };
   geometry: {
-    type: string,
-    coordinates: [number, number]
-  }
+    type: string;
+    coordinates: [number, number];
+  };
 }
 
 interface GeoData {
-  type: string,
-  features: Feature[]
+  type: string;
+  features: Feature[];
 }
 
 interface Props {
-  geodata: GeoData
+  geodata: GeoData;
 }
 
 interface State {
   selectedPoint: mapboxgl.LngLat | null;
   drawerIsOpen: boolean;
+  uploadIsOpen: boolean;
   showRequestPendingNotification: boolean;
   showRequestCompleteNotification: boolean;
 }
@@ -56,6 +58,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
     this.state = {
       selectedPoint: null,
       drawerIsOpen: false,
+      uploadIsOpen: false,
       showRequestPendingNotification: false,
       showRequestCompleteNotification: false,
     };
@@ -90,6 +93,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           accessToken: mapboxgl.accessToken,
           mapboxgl: mapboxgl,
           marker: false,
+          placeholder: 'Mein Lieblingsort ist...',
         })
       );
 
@@ -110,7 +114,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           data: this.props.geodata,
           cluster: true,
           clusterMaxZoom: 14,
-          clusterRadius: 50
+          clusterRadius: 50,
         });
 
         this.map.addLayer({
@@ -126,18 +130,10 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
               100,
               '#f1f075',
               300,
-              '#f28cb1'
+              '#f28cb1',
             ],
-            'circle-radius': [
-              'step',
-              ['get', 'point_count'],
-              20,
-              100,
-              30,
-              300,
-              40
-            ]
-          }
+            'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 300, 40],
+          },
         });
 
         this.map.addLayer({
@@ -148,8 +144,8 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           layout: {
             'text-field': '{point_count_abbreviated}',
             'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12
-          }
+            'text-size': 12,
+          },
         });
 
         this.map.addLayer({
@@ -161,35 +157,32 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             'circle-color': '#11b4da',
             'circle-radius': 10,
             'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff'
-          }
+            'circle-stroke-color': '#fff',
+          },
         });
 
-        this.map.on('click', 'clusters', (e) => {
+        this.map.on('click', 'clusters', e => {
           const features = this.map.queryRenderedFeatures(e.point, {
-            layers: ['clusters']
+            layers: ['clusters'],
           });
           const clusterId = features[0].properties.cluster_id;
-          this.map.getSource('locations').getClusterExpansionZoom(
-            clusterId,
-            (err, zoom) => {
-              if (err) return;
+          this.map.getSource('locations').getClusterExpansionZoom(clusterId, (err, zoom) => {
+            if (err) return;
 
-              this.map.easeTo({
-                center: features[0].geometry.coordinates,
-                zoom: zoom
-              });
-            }
-          );
+            this.map.easeTo({
+              center: features[0].geometry.coordinates,
+              zoom: zoom,
+            });
+          });
         });
 
-        this.map.on('click', 'unclustered-point', (e) => {
-          const fullPath = e.features[0].properties.fullPath
-          const type = e.features[0].properties.type
+        this.map.on('click', 'unclustered-point', e => {
+          const fullPath = e.features[0].properties.fullPath;
+          const type = e.features[0].properties.type;
 
           this.props.history.push(`/view/${type}/${fullPath}`);
         });
-      })
+      });
 
       let touchTimeout;
 
@@ -229,7 +222,13 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
     const { lng, lat } = this.map.getCenter();
 
     this.props.history.push(`/map/${lat}/${lng}/${zoom}`);
-  }
+  };
+
+  toggleUpload = () => {
+    this.setState({
+      uploadIsOpen: !this.state.uploadIsOpen,
+    });
+  };
 
   toggleDrawer = () => {
     this.setState({
@@ -284,7 +283,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           onClose={this.requestSaved}
         >
           <Alert icon={<CircularProgress size={20} />} severity="info">
-            Sharing your request with other users...
+            Wir suchen Leute in der Nähe deines Lieblingsortes...
           </Alert>
         </Snackbar>
         <Snackbar
@@ -294,7 +293,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           onClose={this.requestCompleted}
         >
           <Alert severity="success">
-            We'll notify you once your taxi is ready! Have a good day.
+            Wir benachrichtigen dich, sobald jemand deinen Lieblingsort besucht hat!
           </Alert>
         </Snackbar>
         <Drawer anchor="bottom" open={this.state.drawerIsOpen} onClose={() => this.toggleDrawer()}>
@@ -303,50 +302,39 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
               <ListItemIcon>
                 <PinDrop />
               </ListItemIcon>
-              <ListItemText>Someone take me here</ListItemText>
+              <ListItemText>Ich möchte hier hinreisen</ListItemText>
             </ListItem>
-            <ListItem
-              onClick={() => {
-                return this.map
-                  ? this.props.history.push(
-                    `/upload/${(this.map as mapboxgl.Map)
-                      .getCenter()
-                      .toArray()
-                      .reverse()
-                      .join('/')}`
-                  )
-                  : null;
-              }}
-            >
+            <ListItem onClick={() => this.toggleUpload}>
               <ListItemIcon>
                 <AddAPhoto />
               </ListItemIcon>
-              <ListItemText>Share experience here</ListItemText>
+              <ListItemText>Ich möchte einen neuen Ort teilen</ListItemText>
             </ListItem>
           </List>
+        </Drawer>
+        <Drawer anchor="bottom" open={this.state.uploadIsOpen} onClose={this.toggleUpload}>
+          {this.map && (
+            <UploadForm
+              geo={{
+                latitude: (this.map as mapboxgl.Map).getCenter().lat.toString(),
+                longitude: (this.map as mapboxgl.Map).getCenter().lng.toString(),
+              }}
+            />
+          )}
         </Drawer>
         <BottomNavigation showLabels>
           <BottomNavigationAction
             component={Link}
             to="/list"
-            label="List"
+            label="Liste"
             icon={<ListOutlined />}
           />
           <BottomNavigationAction
-            component={Link}
-            to={`/upload/${
-              this.map
-                ? (this.map as mapboxgl.Map)
-                  .getCenter()
-                  .toArray()
-                  .reverse()
-                  .join('/')
-                : null
-              }`}
-            label="Upload"
+            onClick={this.toggleUpload}
+            label="Erstellen"
             icon={<AddAPhoto />}
           />
-          <BottomNavigationAction label="About" icon={<Info />} />
+          <BottomNavigationAction label="Über uns" icon={<Info />} />
         </BottomNavigation>
       </div>
     );

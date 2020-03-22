@@ -3,7 +3,6 @@ import { Switch, Route } from 'react-router-dom';
 import './App.css';
 import View from '../View/View';
 import Map from '../Map/Map';
-import UploadForm from '../UploadForm/UploadForm';
 import { List } from '../List/List';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -12,8 +11,8 @@ interface Location {
   id: string;
   title: string;
   description: string;
-  fullPath: string,
-  type: string,
+  fullPath: string;
+  type: string;
   geo: {
     latitude: number;
     longitude: number;
@@ -21,20 +20,20 @@ interface Location {
 }
 
 interface GeoData {
-  type: string,
-  features: Feature[]
+  type: string;
+  features: Feature[];
 }
 
 interface Feature {
-  type: string,
+  type: string;
   properties: {
-    id: string,
-    title: string,
-  },
+    id: string;
+    title: string;
+  };
   geometry: {
-    type: string,
-    coordinates: [number, number]
-  }
+    type: string;
+    coordinates: [number, number];
+  };
 }
 
 interface State {
@@ -48,13 +47,13 @@ export default class App extends Component<{}, State> {
     this.state = {
       geodata: {
         type: 'FeatureCollection',
-        features: []
-      }
+        features: [],
+      },
     };
   }
 
   componentDidMount() {
-    this.fetchLocations()
+    this.fetchLocations();
   }
 
   fetchLocations = async () => {
@@ -78,43 +77,37 @@ export default class App extends Component<{}, State> {
               id,
               geo,
               fullPath,
-              type
+              type,
             },
           ];
-
         });
       });
-
 
     this.setState({
       geodata: {
         type: 'FeatureCollection',
-        features: newLocations.map((location) => {
-
+        features: newLocations.map(location => {
           return {
             type: 'Feature',
             properties: {
               id: location.id,
               title: location.title,
               fullPath: location.fullPath,
-              type: location.type
+              type: location.type,
             },
             geometry: {
               type: 'Point',
-              coordinates: [location.geo.longitude, location.geo.latitude]
-            }
-          }
-        })
-      }
-    })
-
-  }
+              coordinates: [location.geo.longitude, location.geo.latitude],
+            },
+          };
+        }),
+      },
+    });
+  };
 
   render() {
-    if(!this.state.geodata.features.length) {
-      return (
-        <div className="App"></div>
-      )
+    if (!this.state.geodata.features.length) {
+      return <div className="App"></div>;
     }
 
     return (
@@ -132,11 +125,8 @@ export default class App extends Component<{}, State> {
           <Route path="/view/:type/:id">
             <View />
           </Route>
-          <Route path="/upload/:latitude/:longitude">
-            <UploadForm />
-          </Route>
         </Switch>
       </div>
-    )
+    );
   }
 }

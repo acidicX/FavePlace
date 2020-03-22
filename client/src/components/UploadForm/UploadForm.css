@@ -1,3 +1,11 @@
+.UploadForm {
+  padding: 15px;
+}
+
+.UploadActions {
+  margin-top: 10px;
+}
+
 .UploadButton {
   display: none;
 }
