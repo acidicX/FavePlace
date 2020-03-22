@@ -2,13 +2,19 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import serveStatic from 'serve-static'
 import favicon from 'serve-favicon'
+import nocache from 'nocache'
 import { resolve, join } from 'path';
 
 const app = express()
 
+app.set('etag', false)
+app.use(nocache());
+
 app.use(bodyParser.json())
 app.use(favicon(join(__dirname, '..', 'client', 'favicon.ico')))
-app.use(serveStatic(resolve("./client")))
+app.use(serveStatic(resolve("./client"), {
+  cacheControl: false
+}))
 
 app.get('*', function (req, res) {
   res.sendFile(join(__dirname, '..', 'client', 'index.html'));
