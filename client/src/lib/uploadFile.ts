@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 import { v4 } from 'uuid';
-import { MediaType, GeoLocation } from '../types';
+import { MediaType, GeoLocation, FirebaseItem } from '../types';
 
 export async function uploadFile(
   type: MediaType,
@@ -20,16 +20,17 @@ export async function uploadFile(
     })
     .then(function(snapshot) {
       console.log('Uploaded a blob or file!');
+      const item: FirebaseItem = {
+        title,
+        tags,
+        type,
+        geo,
+        fullPath: snapshot.ref.fullPath,
+      };
       firebase
         .firestore()
         .collection('items')
-        .add({
-          title,
-          tags,
-          type,
-          geo,
-          fullPath: snapshot.ref.fullPath,
-        });
+        .add(item);
 
       return snapshot;
     })
