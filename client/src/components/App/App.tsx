@@ -12,7 +12,9 @@ interface Location {
   id: string;
   title: string;
   description: string;
-  coordinates: {
+  fullPath: string,
+  type: string,
+  geo: {
     latitude: number;
     longitude: number;
   };
@@ -52,7 +54,7 @@ export default class App extends Component<{}, State> {
   }
 
   componentDidMount() {
-    // this.fetchLocations()
+    this.fetchLocations()
   }
 
   fetchLocations = async () => {
@@ -66,7 +68,7 @@ export default class App extends Component<{}, State> {
         querySnapshot.forEach(doc => {
           const id = doc.id;
 
-          const { title, description, coordinates } = doc.data();
+          const { title, description, geo, fullPath, type } = doc.data();
 
           newLocations = [
             ...newLocations,
@@ -74,7 +76,9 @@ export default class App extends Component<{}, State> {
               title,
               description,
               id,
-              coordinates
+              geo,
+              fullPath,
+              type
             },
           ];
 
@@ -91,10 +95,12 @@ export default class App extends Component<{}, State> {
             properties: {
               id: location.id,
               title: location.title,
+              fullPath: location.fullPath,
+              type: location.type
             },
             geometry: {
               type: 'Point',
-              coordinates: [location.coordinates.latitude, location.coordinates.longitude]
+              coordinates: [location.geo.latitude, location.geo.longitude]
             }
           }
         })
@@ -104,6 +110,12 @@ export default class App extends Component<{}, State> {
   }
 
   render() {
+    if(!this.state.geodata.features.length) {
+      return (
+        <div className="App"></div>
+      )
+    }
+
     return (
       <div className="App">
         <Switch>

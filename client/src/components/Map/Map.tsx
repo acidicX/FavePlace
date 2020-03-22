@@ -114,7 +114,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           clusterMaxZoom: 14,
           clusterRadius: 50
         });
-
+  
         this.map.addLayer({
           id: 'clusters',
           type: 'circle',
@@ -141,7 +141,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             ]
           }
         });
-
+  
         this.map.addLayer({
           id: 'cluster-count',
           type: 'symbol',
@@ -153,7 +153,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             'text-size': 12
           }
         });
-
+  
         this.map.addLayer({
           id: 'unclustered-point',
           type: 'circle',
@@ -186,9 +186,10 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
         });
 
         this.map.on('click', 'unclustered-point', (e) => {
-          const imagePath = e.features[0].properties.imagePath
+          const fullPath = e.features[0].properties.fullPath
+          const type = e.features[0].properties.type
 
-          this.props.history.push(`/view/${imagePath}`);
+          this.props.history.push(`/view/${type}/${fullPath}`);
         });
       })
 
