@@ -9,3 +9,11 @@
 .UploadButton {
   display: none;
 }
+
+.UploadActions button {
+  background-color: #EA8C20;
+}
+
+.UploadActions button:hover {
+  background-color: #ffbc53;
+}

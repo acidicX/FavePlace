@@ -126,7 +126,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             'circle-color': [
               'step',
               ['get', 'point_count'],
-              '#51bbd6',
+              '#EA8C20',
               100,
               '#f1f075',
               300,
@@ -154,7 +154,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           source: 'locations',
           filter: ['!', ['has', 'point_count']],
           paint: {
-            'circle-color': '#11b4da',
+            'circle-color': '#EA8C20',
             'circle-radius': 10,
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff',
@@ -183,14 +183,6 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           this.props.history.push(`/view/${type}/${fullPath}`);
         });
       });
-
-      let touchTimeout;
-
-      let clearTouchTimeout = () => {
-        if (touchTimeout) {
-          clearTimeout(touchTimeout);
-        }
-      };
 
       this.map.on('moveend', this.onMoveend);
 
