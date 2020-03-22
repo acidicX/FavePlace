@@ -6,8 +6,19 @@ import firebase from 'firebase/app';
 import data from '../../data.json';
 import 'firebase/firestore';
 import './Map.css';
-import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
-import { ListOutlined, AddAPhoto, Info } from '@material-ui/icons';
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Snackbar,
+  CircularProgress,
+} from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
 
 interface Location {
   id: string;
@@ -20,6 +31,10 @@ interface Location {
 }
 
 interface State {
+  selectedPoint: mapboxgl.LngLat | null;
+  drawerIsOpen: boolean;
+  showRequestPendingNotification: boolean;
+  showRequestCompleteNotification: boolean;
   locations: Location[];
   images: string[];
 }
@@ -31,6 +46,10 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     super(props, state);
 
     this.state = {
+      selectedPoint: null,
+      drawerIsOpen: false,
+      showRequestPendingNotification: false,
+      showRequestCompleteNotification: false,
       locations: [],
       images: [],
     };
@@ -44,9 +63,9 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
 
       mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-      const initialLat = parseFloat(lat) || 51.5167
-      const initialLng = parseFloat(lng) || 9.9167
-      const initialZoom = parseFloat(zoom) || 5
+      const initialLat = parseFloat(lat) || 51.5167;
+      const initialLng = parseFloat(lng) || 9.9167;
+      const initialZoom = parseFloat(zoom) || 5;
 
       const mapOptions: mapboxgl.MapboxOptions = {
         container: 'map',
@@ -77,16 +96,29 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
         })
       );
 
-      this.map = map;
+      map.on('zoomend', this.fetchLocations);
 
-      this.map.on('moveend', this.onMoveend);
+      map.on('dragend', this.fetchLocations);
 
-      this.setState({
-        images: Object.keys(data.assets).map(key => key),
-      }, () => {
-        this.fetchLocations()
+      map.on('moveend', this.onMoveend);
+
+      map.on('click', event => {
+        this.setState({
+          selectedPoint: event.lngLat,
+        });
+        this.toggleDrawer();
       });
 
+      this.map = map;
+
+      this.setState(
+        {
+          images: Object.keys(data.assets).map(key => key),
+        },
+        () => {
+          this.fetchLocations();
+        }
+      );
 
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}-${initialLng}-${initialZoom}`);
@@ -100,12 +132,11 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
 
     this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
 
-    this.fetchLocations()
-  }
-
+    this.fetchLocations();
+  };
 
   fetchLocations = async () => {
-    const { zoom, lat, lng } = this.props.match.params
+    const { zoom, lat, lng } = this.props.match.params;
 
     if (this.map.isMoving() || parseFloat(zoom) < 8) {
       return;
@@ -163,10 +194,100 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     }
   };
 
+  toggleDrawer = () => {
+    this.setState({
+      drawerIsOpen: !this.state.drawerIsOpen,
+    });
+  };
+
+  // TODO: this is a state machine...
+  requestPending = () => {
+    this.toggleDrawer();
+    this.setState({
+      showRequestPendingNotification: true,
+    });
+  };
+
+  requestSaved = () => {
+    if (this.state.selectedPoint !== null) {
+      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map);
+
+      firebase
+        .firestore()
+        .collection('requests')
+        .add({
+          geo: {
+            lng: this.state.selectedPoint.lng,
+            lat: this.state.selectedPoint.lat,
+          },
+        });
+    }
+
+    this.setState({
+      showRequestPendingNotification: false,
+      showRequestCompleteNotification: true,
+    });
+  };
+
+  requestCompleted = () => {
+    this.setState({
+      showRequestCompleteNotification: false,
+    });
+  };
+
   render() {
     return (
       <div className="Map">
         <div id="map"></div>
+
+        <Snackbar
+          className="Snackbar"
+          open={this.state.showRequestPendingNotification}
+          autoHideDuration={3000}
+          onClose={this.requestSaved}
+        >
+          <Alert icon={<CircularProgress size={20} />} severity="info">
+            Sharing your request with other users...
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          className="Snackbar"
+          open={this.state.showRequestCompleteNotification}
+          autoHideDuration={4000}
+          onClose={this.requestCompleted}
+        >
+          <Alert severity="success">
+            We'll notify you once your taxi is ready! Have a good day.
+          </Alert>
+        </Snackbar>
+        <Drawer anchor="bottom" open={this.state.drawerIsOpen} onClose={() => this.toggleDrawer()}>
+          <List>
+            <ListItem onClick={() => this.requestPending()}>
+              <ListItemIcon>
+                <PinDrop />
+              </ListItemIcon>
+              <ListItemText>Someone take me here</ListItemText>
+            </ListItem>
+            <ListItem
+              onClick={() => {
+                return this.map
+                  ? this.props.history.push(
+                      `/upload/${(this.map as mapboxgl.Map)
+                        .getCenter()
+                        .toArray()
+                        .reverse()
+                        .join('-')}`
+                    )
+                  : null;
+              }}
+            >
+              <ListItemIcon>
+                <AddAPhoto />
+              </ListItemIcon>
+              <ListItemText>Share experience here</ListItemText>
+            </ListItem>
+          </List>
+        </Drawer>
         <BottomNavigation showLabels>
           <BottomNavigationAction
             component={Link}
@@ -176,7 +297,15 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
           />
           <BottomNavigationAction
             component={Link}
-            to="/upload"
+            to={`/upload/${
+              this.map
+                ? (this.map as mapboxgl.Map)
+                    .getCenter()
+                    .toArray()
+                    .reverse()
+                    .join('-')
+                : null
+            }`}
             label="Upload"
             icon={<AddAPhoto />}
           />
