@@ -4,6 +4,7 @@ import './App.css';
 import View from '../View/View';
 import Map from '../Map/Map';
 import UploadForm from '../UploadForm/UploadForm';
+import About from '../About/About';
 import { List } from '../List/List';
 
 export default () => (
@@ -23,6 +24,9 @@ export default () => (
       </Route>
       <Route path="/upload/:lat-:lng">
         <UploadForm />
+      </Route>
+      <Route path="/about">
+        <About />
       </Route>
     </Switch>
   </div>

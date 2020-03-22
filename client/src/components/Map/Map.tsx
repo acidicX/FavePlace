@@ -272,12 +272,12 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
               onClick={() => {
                 return this.map
                   ? this.props.history.push(
-                      `/upload/${(this.map as mapboxgl.Map)
-                        .getCenter()
-                        .toArray()
-                        .reverse()
-                        .join('-')}`
-                    )
+                    `/upload/${(this.map as mapboxgl.Map)
+                      .getCenter()
+                      .toArray()
+                      .reverse()
+                      .join('-')}`
+                  )
                   : null;
               }}
             >
@@ -300,16 +300,16 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
             to={`/upload/${
               this.map
                 ? (this.map as mapboxgl.Map)
-                    .getCenter()
-                    .toArray()
-                    .reverse()
-                    .join('-')
+                  .getCenter()
+                  .toArray()
+                  .reverse()
+                  .join('-')
                 : null
-            }`}
+              }`}
             label="Upload"
             icon={<AddAPhoto />}
           />
-          <BottomNavigationAction label="About" icon={<Info />} />
+          <BottomNavigationAction component={Link} to="/about" label="About" icon={<Info />} />
         </BottomNavigation>
       </div>
     );
