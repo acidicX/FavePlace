@@ -1,8 +1,14 @@
 import firebase from 'firebase';
 import { v4 } from 'uuid';
-import { MediaType } from '../types';
+import { MediaType, GeoLocation, FirebaseItem } from '../types';
 
-export async function uploadFile(type: MediaType, title: string, tags: Array<string>, blob: Blob) {
+export async function uploadFile(
+  type: MediaType,
+  title: string,
+  tags: Array<string>,
+  geo: GeoLocation,
+  blob: Blob
+) {
   const storageRef = firebase.storage().ref();
   const id = v4();
   const imageRef = storageRef.child(id);
@@ -14,15 +20,17 @@ export async function uploadFile(type: MediaType, title: string, tags: Array<str
     })
     .then(function(snapshot) {
       console.log('Uploaded a blob or file!');
+      const item: FirebaseItem = {
+        title,
+        tags,
+        type,
+        geo,
+        fullPath: snapshot.ref.fullPath,
+      };
       firebase
         .firestore()
         .collection('items')
-        .add({
-          title,
-          tags,
-          type,
-          fullPath: snapshot.ref.fullPath,
-        });
+        .add(item);
 
       return snapshot;
     })

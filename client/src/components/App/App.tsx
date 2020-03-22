@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import './App.css';
-import { View } from '../View/View';
+import View from '../View/View';
 import Map from '../Map/Map';
 import UploadForm from '../UploadForm/UploadForm';
 import { List } from '../List/List';
-import 'firebase/firestore';
 import firebase from 'firebase/app';
+import 'firebase/firestore';
 
 interface Location {
   id: string;
@@ -52,7 +52,7 @@ export default class App extends Component<{}, State> {
   }
 
   componentDidMount() {
-    this.fetchLocations()
+    // this.fetchLocations()
   }
 
   fetchLocations = async () => {
@@ -104,12 +104,6 @@ export default class App extends Component<{}, State> {
   }
 
   render() {
-    if (!this.state.geodata.features.length) {
-      return (
-        <div className="App"></div>
-      )
-    }
-
     return (
       <div className="App">
         <Switch>
@@ -122,10 +116,10 @@ export default class App extends Component<{}, State> {
           <Route path="/list">
             <List />
           </Route>
-          <Route path="/view/:id">
+          <Route path="/view/:type/:id">
             <View />
           </Route>
-          <Route path="/upload">
+          <Route path="/upload/:lat-:lng">
             <UploadForm />
           </Route>
         </Switch>

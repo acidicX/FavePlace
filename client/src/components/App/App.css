@@ -32,3 +32,7 @@
     transform: rotate(360deg);
   }
 }
+
+.Snackbar {
+  bottom: 70px !important;
+}
