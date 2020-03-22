@@ -188,9 +188,9 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
 
       let clearTouchTimeout = () => {
         if (touchTimeout) {
-          clearTimeout(touchTimeout)
+          clearTimeout(touchTimeout);
         }
-      }
+      };
 
       this.map.on('moveend', this.onMoveend);
 
@@ -201,7 +201,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
           });
           this.toggleDrawer();
         }
-      })
+      });
 
       if (this.props.match.path === '/') {
         this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
@@ -296,7 +296,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
               </ListItemIcon>
               <ListItemText>Ich möchte hier hinreisen</ListItemText>
             </ListItem>
-            <ListItem onClick={() => this.toggleUpload}>
+            <ListItem onClick={() => this.toggleUpload()}>
               <ListItemIcon>
                 <AddAPhoto />
               </ListItemIcon>
