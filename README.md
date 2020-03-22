@@ -8,6 +8,11 @@
 
 Du kannst den Prototypen unter https://fav-place-taxi.peerigon.com anschauen!
 
+## Video & Clickdummy
+
+* Unser Teaser-Video auf [YouTube](https://www.youtube.com/watch?v=LMTlDvOGrRY)
+* Unser Clickdummy auf [Figma](https://www.figma.com/proto/gEBMTyS0qPeH2rNJZ3FjhW/faveplace?node-id=0%3A2&scaling=scale-down)
+
 ## Das Problem, das wir lösen wollen
 
 Aufgrund von Covid-19 und der erhöhten Ansteckungsgefahr wird es auf unabsehbare Zeit nicht mehr möglich sein, die eigenen Lieblingsorte zu besuchen, Ausflüge zu machen oder in den Urlaub zu fahren. Die fehlende Abwechslung führt bei vielen zu Frust und Unausgeglichenheit.
