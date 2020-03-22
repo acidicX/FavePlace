@@ -121,7 +121,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
       );
 
       if (this.props.match.path === '/') {
-        this.props.history.push(`/map/${initialLat}_${initialLng}_${initialZoom}`);
+        this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
       }
     }
   }
@@ -130,7 +130,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
     const zoom = this.map.getZoom();
     const { lng, lat } = this.map.getCenter();
 
-    this.props.history.push(`/map/${lat}_${lng}_${zoom}`);
+    this.props.history.push(`/map/${lat}/${lng}/${zoom}`);
 
     this.fetchLocations();
   };
@@ -276,7 +276,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
                         .getCenter()
                         .toArray()
                         .reverse()
-                        .join('_')}`
+                        .join('/')}`
                     )
                   : null;
               }}
@@ -303,7 +303,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
                     .getCenter()
                     .toArray()
                     .reverse()
-                    .join('_')
+                    .join('/')
                 : null
             }`}
             label="Upload"
