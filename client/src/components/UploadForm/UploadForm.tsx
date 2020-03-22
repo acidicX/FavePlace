@@ -7,6 +7,7 @@ import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core
 import { TextField, Select } from 'formik-material-ui';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
 import firebase from 'firebase';
+import { useHistory } from 'react-router';
 
 interface IFormValues {
   type: MediaType;
@@ -34,6 +35,7 @@ type UploadFormProps = {
 };
 
 const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
+  const history = useHistory();
   if (!geo.latitude || !geo.longitude) {
     return <div>Error: no lat / lng specified!</div>;
   }
@@ -70,6 +72,8 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
             const snapshot = await uploadFile(type, title, tags, geoPoint, fileAsBlob);
             console.log(snapshot);
             setSubmitting(false);
+            const { fullPath } = snapshot.metadata;
+            history.push(`/view/${type}/${fullPath}`);
           } catch (e) {
             console.error(e);
             setSubmitting(false);
