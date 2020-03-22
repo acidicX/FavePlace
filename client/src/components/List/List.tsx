@@ -41,7 +41,7 @@ function ListItemLink(props: ListItemLinkProps) {
 export const List: React.FunctionComponent<ListProps> = () => (
   <MaterialList>
     {Object.entries(data.assets).map(([key, { user }]) => (
-      <ListItemLink icon={<ImageIcon />} to={`/view/${key}`} key={key}>
+      <ListItemLink icon={<ImageIcon />} to={`/view/${key}-image360`} key={key}>
         <ListItemText primary={key} secondary={user} />
       </ListItemLink>
     ))}

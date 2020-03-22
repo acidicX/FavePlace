@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import * as AFrame from 'aframe';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './index.css';
 import App from './components/App/App';
@@ -17,6 +18,8 @@ const config = {
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
 };
+
+console.debug('Loading AFrame: ' + AFrame.version);
 
 firebase.initializeApp(config);
 firebase.firestore();
