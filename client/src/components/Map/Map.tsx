@@ -39,18 +39,23 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
   map: any = null;
 
   componentDidMount() {
-    const { lat, lng, zoom } = this.props.match.params;
     if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
+      const { lat, lng, zoom } = this.props.match.params;
+
       mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+
+      const initialLat = parseFloat(lat) || 51.5167
+      const initialLng = parseFloat(lng) || 9.9167
+      const initialZoom = parseFloat(zoom) || 5
 
       const mapOptions: mapboxgl.MapboxOptions = {
         container: 'map',
         style: 'mapbox://styles/martingassner/ck824oanx0aew1jmm6z5w26e0',
         center: {
-          lat: parseFloat(lat) || 51.5167,
-          lng: parseFloat(lng) || 9.9167,
+          lat: initialLat,
+          lng: initialLng,
         },
-        zoom: parseInt(zoom) || 5,
+        zoom: initialZoom,
       };
 
       const map = new mapboxgl.Map(mapOptions);
@@ -72,27 +77,39 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
         })
       );
 
-      map.on('zoomend', this.fetchLocations);
-
-      map.on('dragend', this.fetchLocations);
-
       this.map = map;
+
+      this.map.on('moveend', this.onMoveend);
 
       this.setState({
         images: Object.keys(data.assets).map(key => key),
+      }, () => {
+        this.fetchLocations()
       });
+
+
+      if (this.props.match.path === '/') {
+        this.props.history.push(`/map/${initialLat}-${initialLng}-${initialZoom}`);
+      }
     }
   }
 
-  fetchLocations = async () => {
+  onMoveend = () => {
     const zoom = this.map.getZoom();
     const { lng, lat } = this.map.getCenter();
 
-    if (this.map.isMoving() || zoom < 8) {
+    this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
+
+    this.fetchLocations()
+  }
+
+
+  fetchLocations = async () => {
+    const { zoom, lat, lng } = this.props.match.params
+
+    if (this.map.isMoving() || parseFloat(zoom) < 8) {
       return;
     }
-
-    this.props.history.push(`/map/${lat}-${lng}-${zoom}`);
 
     const { locations, images } = this.state;
 
@@ -118,8 +135,8 @@ class Map extends Component<RouteComponentProps<MapRouteParams>, State> {
                 description,
                 id,
                 coordinates: {
-                  lng: lng + (Math.random() - 0.5) / 10,
-                  lat: lat + (Math.random() - 0.5) / 10,
+                  lng: parseFloat(lng) + (Math.random() - 0.5) / 10,
+                  lat: parseFloat(lat) + (Math.random() - 0.5) / 10,
                 },
               },
             ];
