@@ -5,7 +5,7 @@
     "token": "",
     "image": "ubuntu-18.04",
     "location": "fsn1",
-    "server_type": "cx21",
+    "server_type": "cx11",
     "server_name": "WirVsVirus-ubuntu",
     "ssh_username": "root",
     "ssh_keys": ["acidicX", "martingassner", "GitHub WirVsVirus deploy key"]

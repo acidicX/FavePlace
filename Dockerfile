@@ -25,6 +25,7 @@ COPY backend/package*.json ./
 RUN npm ci --production
 
 COPY --from=build-env /usr/src/app-build/backend/dist /usr/src/app/dist
+COPY --from=build-env /usr/src/app-build/backend/.env.example /usr/src/app/
 COPY --from=build-env /usr/src/app-build/client/build/ /usr/src/app/client
 
 CMD ["npm", "run", "start"]

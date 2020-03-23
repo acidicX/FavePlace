@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!--
+        in production we inject a config object with environment variables from the server.
+        To mimic the same values in development we hardcode the values here in the template.
+      -->
+    <script>
+      <% if (process.env.NODE_ENV === 'production') { %>
+        window.injectedConfiguration=(<%= htmlWebpackPlugin.options.injectedConfiguration %>)
+      <% } %>
+      <% if (process.env.NODE_ENV === 'development') { %>
+        window.injectedConfiguration = {
+          PUBLIC_URL: "/",
+        };
+      <% } %>
+    </script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="FavePlace #WirVsVirus"
-    />
+    <meta name="description" content="FavePlace #WirVsVirus" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
-    <link rel="stylesheet"
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
       href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css"
-      type="text/css" />
+      type="text/css"
+    />
     <title>FavePlace</title>
   </head>
   <body>

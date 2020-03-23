@@ -1,8 +1,9 @@
 version: "3.7"
 services:
-  backend:
-    build: .
-    container_name: favorite_place_taxi_backend
+  faveplace_backend:
+    image: faveplace/faveplace:latest
+    #build: .
+    container_name: faveplace_backend
     ports:
       - ${PRIVATE_IP}:8080:8080
     env_file:
@@ -10,7 +11,7 @@ services:
     environment:
       - NODE_ENV=production
     networks:
-      - fpt
+      - faveplace
 
 networks:
-  fpt:
+  faveplace:
