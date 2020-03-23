@@ -91,16 +91,15 @@ Kommandozeile (unix):
 ```bash
 # .env kopieren
 cp .env.example .env
-cd client
-cp .env.example .env
 # nun editiert das .env file mit dem editor eurer Wahl und tragt die Variablen von Firebase und Mapbox ein
+# Bsp:
 nano .env
 ```
 
-Danach könnt ihr das Projekt über `docker-compose` bauen und starten:
+Danach könnt ihr das Projekt über `docker-compose` starten:
 
 ```bash
-docker-compose build
+docker-compose pull
 docker-compose up
 ```
 
@@ -108,10 +107,14 @@ Der Server sollte nun unter http://127.0.0.1:8080 für euch verfügbar sein.
 
 ### Entwicklungsumgebung starten
 
+Vorher das `.env` korrekt setzen wie oben beschrieben. In dem Fall auch die Development Variablen!
+
+Dann:
+
 ```bash
-cd client
 npm ci
-npm run start
+npm run setup
+npm run dev
 ```
 
 Der Webpack Dev Server sollte nun unter http://localhost:3000 für euch verfügbar sein. Das Backend muss aktuell für die Entwicklung **nicht** gestartet werden. Es liefert nur den Client im Production Mode aus.

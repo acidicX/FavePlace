@@ -4,7 +4,7 @@
   "description": "see https://github.com/acidicX/FavePlace#faveplace",
   "main": "backend/dist/index.js",
   "scripts": {
-    "start": "docker-compose build && docker-compse up",
+    "start": "docker-compose pull && docker-compse up",
     "dev": "cd client && npm run start",
     "setup": "run-p setup:client setup:backend",
     "setup:client": "cp .env client/.env && cd client && npm i",
