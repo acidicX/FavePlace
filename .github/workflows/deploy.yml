@@ -27,7 +27,7 @@ jobs:
         run: docker build -t docker.io/faveplace/faveplace:${{ env.RELEASE_VERSION }} .
 
       - name: tag image with latest as well
-        run: docker tag docker.io/peerigon/quesap_master:${{ env.RELEASE_VERSION }} docker.io/faveplace/faveplace:latest
+        run: docker tag docker.io/faveplace/faveplace:${{ env.RELEASE_VERSION }} docker.io/faveplace/faveplace:latest
 
       - name: publish image to docker hub with current tag
         run: docker push docker.io/faveplace/faveplace:${{ env.RELEASE_VERSION }}
