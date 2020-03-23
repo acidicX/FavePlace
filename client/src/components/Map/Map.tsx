@@ -20,6 +20,7 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { FirebaseItem } from '../../types';
 import UploadForm from '../UploadForm/UploadForm';
+import { appConfig } from '../../lib/config';
 
 interface Props {
   items: FirebaseItem[];
@@ -73,145 +74,147 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
 
   map: mapboxgl.Map | null = null;
 
-  componentDidMount() {
-    if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
-      const { lat, lng, zoom } = this.props.match.params;
+  mapSetup = () => {
+    const { lat, lng, zoom } = this.props.match.params;
 
-      mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+    mapboxgl.accessToken = appConfig.mapboxAccessToken;
 
-      const mapOptions: mapboxgl.MapboxOptions = {
-        container: 'map',
-        style: 'mapbox://styles/martingassner/ck824oanx0aew1jmm6z5w26e0',
-        center: {
-          lat: parseFloat(lat),
-          lng: parseFloat(lng),
+    const mapOptions: mapboxgl.MapboxOptions = {
+      container: 'map',
+      style: appConfig.mapboxMapStyle,
+      center: {
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+      },
+      zoom: parseFloat(zoom),
+    };
+
+    const map = new mapboxgl.Map(mapOptions);
+
+    map.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        marker: false,
+        placeholder: 'Mein Lieblingsort ist...',
+      })
+    );
+
+    map.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
         },
-        zoom: parseFloat(zoom),
-      };
+        trackUserLocation: true,
+      })
+    );
 
-      const map = new mapboxgl.Map(mapOptions);
-
-      map.addControl(
-        new MapboxGeocoder({
-          accessToken: mapboxgl.accessToken,
-          mapboxgl: mapboxgl,
-          marker: false,
-          placeholder: 'Mein Lieblingsort ist...',
-        })
-      );
-
-      map.addControl(
-        new mapboxgl.GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true,
-          },
-          trackUserLocation: true,
-        })
-      );
-
-      map.on('load', () => {
-        map.addSource('locations', {
-          type: 'geojson',
-          data: mapItemsToGeoFeatures(this.props.items),
-          cluster: true,
-          clusterMaxZoom: 14,
-          clusterRadius: 50,
-        });
-
-        map.addLayer({
-          id: 'clusters',
-          type: 'circle',
-          source: 'locations',
-          filter: ['has', 'point_count'],
-          paint: {
-            'circle-color': [
-              'step',
-              ['get', 'point_count'],
-              '#EA8C20',
-              100,
-              '#f1f075',
-              300,
-              '#f28cb1',
-            ],
-            'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 300, 40],
-          },
-        });
-
-        map.addLayer({
-          id: 'cluster-count',
-          type: 'symbol',
-          source: 'locations',
-          filter: ['has', 'point_count'],
-          layout: {
-            'text-field': '{point_count_abbreviated}',
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12,
-          },
-        });
-
-        map.addLayer({
-          id: 'unclustered-point',
-          type: 'circle',
-          source: 'locations',
-          filter: ['!', ['has', 'point_count']],
-          paint: {
-            'circle-color': '#EA8C20',
-            'circle-radius': 10,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff',
-          },
-        });
-
-        map.on('click', 'clusters', event => {
-          const features = map.queryRenderedFeatures(event.point, {
-            layers: ['clusters'],
-          });
-
-          if (features && features.length > 0) {
-            const cluster = features[0];
-            if (cluster.properties !== null) {
-              const clusterId = cluster.properties.cluster_id;
-              (map.getSource('locations') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
-                clusterId,
-                (err, zoom) => {
-                  if (err) return;
-
-                  map.easeTo({
-                    // Oh TypeScript
-                    center: (cluster.geometry as any).coordinates as mapboxgl.LngLat,
-                    zoom,
-                  });
-                }
-              );
-            }
-          }
-        });
-
-        map.on('click', 'unclustered-point', event => {
-          if (event.features && event.features.length > 0) {
-            const point = event.features[0];
-            if (point.properties !== null) {
-              const { fullPath, type } = point.properties;
-
-              this.props.history.push(`/view/${type}/${fullPath}`);
-            }
-          }
-        });
+    map.on('load', () => {
+      map.addSource('locations', {
+        type: 'geojson',
+        data: mapItemsToGeoFeatures(this.props.items),
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50,
       });
 
-      map.on('moveend', this.onMoveend);
+      map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'locations',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#EA8C20',
+            100,
+            '#f1f075',
+            300,
+            '#f28cb1',
+          ],
+          'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 300, 40],
+        },
+      });
 
-      map.on('click', event => {
-        if (map.getZoom() >= 15) {
-          this.setState({
-            selectedPoint: event.lngLat,
-          });
-          this.toggleDrawer();
+      map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'locations',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 12,
+        },
+      });
+
+      map.addLayer({
+        id: 'unclustered-point',
+        type: 'circle',
+        source: 'locations',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': '#EA8C20',
+          'circle-radius': 10,
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#fff',
+        },
+      });
+
+      map.on('click', 'clusters', event => {
+        const features = map.queryRenderedFeatures(event.point, {
+          layers: ['clusters'],
+        });
+
+        if (features && features.length > 0) {
+          const cluster = features[0];
+          if (cluster.properties !== null) {
+            const clusterId = cluster.properties.cluster_id;
+            (map.getSource('locations') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
+              clusterId,
+              (err, zoom) => {
+                if (err) return;
+
+                map.easeTo({
+                  // Oh TypeScript
+                  center: (cluster.geometry as any).coordinates as mapboxgl.LngLat,
+                  zoom,
+                });
+              }
+            );
+          }
         }
       });
 
-      this.map = map;
-    }
+      map.on('click', 'unclustered-point', event => {
+        if (event.features && event.features.length > 0) {
+          const point = event.features[0];
+          if (point.properties !== null) {
+            const { fullPath, type } = point.properties;
+
+            this.props.history.push(`/view/${type}/${fullPath}`);
+          }
+        }
+      });
+    });
+
+    map.on('moveend', this.onMoveend);
+
+    map.on('click', event => {
+      if (map.getZoom() >= 15) {
+        this.setState({
+          selectedPoint: event.lngLat,
+        });
+        this.toggleDrawer();
+      }
+    });
+
+    this.map = map;
+  };
+
+  componentDidMount() {
+    this.mapSetup();
   }
 
   componentDidUpdate(prevProps) {
