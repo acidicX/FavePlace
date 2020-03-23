@@ -19,14 +19,15 @@ import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
 import UploadForm from '../UploadForm/UploadForm';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
+import { FirebaseItem } from '../../types';
 
 interface Feature {
   type: string;
   properties: {
     id: string;
     title: string;
-    fullPath: string,
-    type: string,
+    fullPath: string;
+    type: string;
   };
   geometry: {
     type: string;
@@ -34,16 +35,11 @@ interface Feature {
   };
 }
 
-interface GeoData {
-  type: string;
-  features: Feature[];
-}
-
 interface Props {
-  geodata: GeoData;
+  items: FirebaseItem[];
 }
 
-interface State {
+interface MapState {
   selectedPoint: mapboxgl.LngLat | null;
   drawerIsOpen: boolean;
   uploadIsOpen: boolean;
@@ -53,7 +49,30 @@ interface State {
 
 type MapRouteParams = { lat: string; lng: string; zoom: string };
 
-class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> {
+const mapItemsToGeoFeatures = (items: FirebaseItem[]) => ({
+  type: 'FeatureCollection',
+  features: items.map(item => {
+    const { id, title, geo, fullPath, type } = item;
+
+    const feature = {
+      type: 'Feature',
+      properties: {
+        id,
+        title,
+        fullPath,
+        type,
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: [geo.longitude, geo.latitude],
+      },
+    };
+
+    return feature;
+  }),
+});
+
+class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapState> {
   constructor(props, state) {
     super(props, state);
 
@@ -113,7 +132,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
       this.map.on('load', () => {
         this.map.addSource('locations', {
           type: 'geojson',
-          data: this.props.geodata,
+          data: mapItemsToGeoFeatures(this.props.items),
           cluster: true,
           clusterMaxZoom: 14,
           clusterRadius: 50,
@@ -204,9 +223,8 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
   }
 
   componentDidUpdate(prevProps) {
-    if (this.map.isStyleLoaded()
-      && (prevProps.geodata.features.length !== this.props.geodata.features.length)) {
-      this.map.getSource('locations').setData(this.props.geodata);
+    if (this.map.isStyleLoaded() && prevProps.items.length !== this.props.items.length) {
+      this.map.getSource('locations').setData(mapItemsToGeoFeatures(this.props.items));
     }
   }
 
@@ -327,7 +345,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, State> 
             label="Erstellen"
             icon={<AddAPhoto />}
           />
-           <BottomNavigationAction component={Link} to="/about" label="Über uns" icon={<Info />} />
+          <BottomNavigationAction component={Link} to="/about" label="Über uns" icon={<Info />} />
         </BottomNavigation>
       </div>
     );

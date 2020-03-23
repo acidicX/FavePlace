@@ -1,45 +1,26 @@
 import React, { Component } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter, RouteComponentProps } from 'react-router-dom';
 import './App.css';
 import View from '../View/View';
 import Map from '../Map/Map';
 import About from '../About/About';
 import { List } from '../List/List';
+import { FirebaseItem } from '../../types';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
+import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
+import { ArrowBack } from '@material-ui/icons';
 
-interface GeoData {
-  type: string;
-  features: Feature[];
+interface AppState {
+  items: FirebaseItem[];
 }
 
-interface Feature {
-  type: string;
-  properties: {
-    id: string;
-    title: string;
-    fullPath: string,
-    type: string,
-  };
-  geometry: {
-    type: string;
-    coordinates: number[];
-  };
-}
-
-interface State {
-  geodata: GeoData;
-}
-
-export default class App extends Component<{}, State> {
+class App extends Component<RouteComponentProps, AppState> {
   constructor(props, state) {
     super(props, state);
 
     this.state = {
-      geodata: {
-        type: 'FeatureCollection',
-        features: [],
-      },
+      items: [],
     };
   }
 
@@ -52,40 +33,25 @@ export default class App extends Component<{}, State> {
       .firestore()
       .collection('items')
       .onSnapshot(querySnapshot => {
-        let features: Feature[] = []
+        let items: FirebaseItem[] = [];
 
         querySnapshot.docs.forEach(doc => {
           const id = doc.id;
-
-          const { title, geo, fullPath, type } = doc.data();
-
-          const feature = {
-            type: 'Feature',
-            properties: {
-              id,
-              title,
-              fullPath,
-              type,
-            },
-            geometry: {
-              type: 'Point',
-              coordinates: [geo.longitude, geo.latitude],
-            },
-          }
-          features.push(feature)
+          const item = doc.data() as FirebaseItem;
+          items.push({
+            id,
+            ...item,
+          });
         });
 
         this.setState({
-          geodata: {
-            type: this.state.geodata.type,
-            features 
-          }
-        })
-      })
+          items,
+        });
+      });
   };
 
   render() {
-    if (!this.state.geodata.features.length) {
+    if (!this.state.items.length) {
       return <div className="App"></div>;
     }
 
@@ -93,22 +59,38 @@ export default class App extends Component<{}, State> {
       <div className="App">
         <Switch>
           <Route path="/" exact>
-            <Map geodata={this.state.geodata} />
+            <Map items={this.state.items} />
           </Route>
           <Route path="/map/:lat/:lng/:zoom">
-            <Map geodata={this.state.geodata} />
+            <Map items={this.state.items} />
           </Route>
           <Route path="/list">
-            <List />
+            <List items={this.state.items} />
+            <BottomNavigation showLabels>
+              <BottomNavigationAction
+                icon={<ArrowBack />}
+                onClick={() => this.props.history.goBack()}
+                label="Zurück"
+              />
+            </BottomNavigation>
           </Route>
           <Route path="/view/:type/:id">
             <View />
           </Route>
           <Route path="/about">
             <About />
+            <BottomNavigation showLabels>
+              <BottomNavigationAction
+                icon={<ArrowBack />}
+                onClick={() => this.props.history.goBack()}
+                label="Zurück"
+              />
+            </BottomNavigation>
           </Route>
         </Switch>
       </div>
     );
   }
 }
+
+export default withRouter(App);
