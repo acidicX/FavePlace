@@ -20,7 +20,7 @@ export async function uploadFile(
     })
     .then(function(snapshot) {
       console.log('Uploaded a blob or file!');
-      const item: FirebaseItem = {
+      const item: Omit<FirebaseItem, 'id'> = {
         title,
         tags,
         type,

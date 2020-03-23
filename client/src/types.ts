@@ -7,6 +7,7 @@ export type GeoLocation = {
 };
 
 export type FirebaseItem = {
+  id: string;
   title: string;
   tags: Array<string>;
   type: MediaType;

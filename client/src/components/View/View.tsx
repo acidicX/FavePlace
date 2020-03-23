@@ -30,7 +30,7 @@ const Sharing: React.FunctionComponent<{ title: string }> = ({ title }) => {
   ) : null;
 };
 
-const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match }) => {
+const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match, history }) => {
   const { id, type } = match.params;
   const [title, setTitle] = useState('title placeholder');
 
@@ -52,6 +52,7 @@ const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match }) => {
     return (
       <aside className="Viewer">
         <ImageViewer
+          onClose={() => history.goBack()}
           visible={true}
           images={[
             {

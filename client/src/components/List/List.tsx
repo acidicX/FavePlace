@@ -1,5 +1,4 @@
 import React from 'react';
-import data from '../../data.json';
 import { Link, LinkProps } from 'react-router-dom';
 import {
   List as MaterialList,
@@ -8,18 +7,25 @@ import {
   ListItemProps,
   ListItemText,
 } from '@material-ui/core';
-import { Image as ImageIcon } from '@material-ui/icons';
+import { Image as ImageIcon, Movie, ThreeDRotation } from '@material-ui/icons';
+import { FirebaseItem, MediaType } from '../../types';
 
-type ListProps = {};
+type ListProps = {
+  items: FirebaseItem[];
+};
 
 type ListItemLinkProps = ListItemProps & {
   to: string;
   icon?: React.ReactElement;
 };
 
-function ListItemLink(props: ListItemLinkProps) {
-  const { icon, children, to } = props;
+const mapTypeToIcon = new Map<MediaType, React.ReactElement>([
+  ['image', <ImageIcon />],
+  ['image360', <ThreeDRotation />],
+  ['video', <Movie />],
+]);
 
+const ListItemLink: React.FunctionComponent<ListItemLinkProps> = ({ icon, children, to }) => {
   const renderLink = React.useMemo(
     () =>
       React.forwardRef<any, Omit<LinkProps, 'to'>>((itemProps, ref) => (
@@ -36,13 +42,20 @@ function ListItemLink(props: ListItemLinkProps) {
       </ListItem>
     </li>
   );
-}
+};
 
-export const List: React.FunctionComponent<ListProps> = () => (
-  <MaterialList>
-    {Object.entries(data.assets).map(([key, { user }]) => (
-      <ListItemLink icon={<ImageIcon />} to={`/view/${key}-image360`} key={key}>
-        <ListItemText primary={key} secondary={user} />
+export const List: React.FunctionComponent<ListProps> = ({ items }) => (
+  <MaterialList className="List">
+    {items.map(item => (
+      <ListItemLink
+        icon={mapTypeToIcon[item.type]}
+        to={`/view/${item.type}/${item.fullPath}`}
+        key={item.fullPath}
+      >
+        <ListItemText
+          primary={item.title}
+          secondary={`${item.geo.latitude},${item.geo.longitude}`}
+        />
       </ListItemLink>
     ))}
   </MaterialList>
