@@ -13,3 +13,21 @@ export type FirebaseItem = {
   geo: firebase.firestore.GeoPoint;
   fullPath: string;
 };
+
+export type InjectedConfiguration = {
+  mapboxAccessToken: string;
+  mapboxMapStyle: string;
+  firebaseApiKey: string;
+  firebaseAuthDomain: string;
+  firebaseDatabaseUrl: string;
+  firebaseProjectId: string;
+  firebaseStorageBucket: string;
+  firebaseMessagingSenderId: string;
+  firebaseAppId: string;
+};
+
+declare global {
+  interface Window {
+    injectedConfiguration: InjectedConfiguration;
+  }
+}
