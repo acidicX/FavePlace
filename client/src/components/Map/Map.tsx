@@ -16,24 +16,10 @@ import {
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
-import UploadForm from '../UploadForm/UploadForm';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { FirebaseItem } from '../../types';
-
-interface Feature {
-  type: string;
-  properties: {
-    id: string;
-    title: string;
-    fullPath: string;
-    type: string;
-  };
-  geometry: {
-    type: string;
-    coordinates: number[];
-  };
-}
+import UploadForm from '../UploadForm/UploadForm';
 
 interface Props {
   items: FirebaseItem[];
@@ -49,12 +35,12 @@ interface MapState {
 
 type MapRouteParams = { lat: string; lng: string; zoom: string };
 
-const mapItemsToGeoFeatures = (items: FirebaseItem[]) => ({
+const mapItemsToGeoFeatures = (items: FirebaseItem[]): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
   features: items.map(item => {
     const { id, title, geo, fullPath, type } = item;
 
-    const feature = {
+    const feature: GeoJSON.Feature = {
       type: 'Feature',
       properties: {
         id,
@@ -85,7 +71,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
     };
   }
 
-  map: any = null;
+  map: mapboxgl.Map | null = null;
 
   componentDidMount() {
     if (process.env.REACT_APP_MAPBOX_ACCESS_TOKEN) {
@@ -93,18 +79,14 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
 
       mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-      const initialLat = parseFloat(lat) || 51.5167;
-      const initialLng = parseFloat(lng) || 9.9167;
-      const initialZoom = parseFloat(zoom) || 5;
-
       const mapOptions: mapboxgl.MapboxOptions = {
         container: 'map',
         style: 'mapbox://styles/martingassner/ck824oanx0aew1jmm6z5w26e0',
         center: {
-          lat: initialLat,
-          lng: initialLng,
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
         },
-        zoom: initialZoom,
+        zoom: parseFloat(zoom),
       };
 
       const map = new mapboxgl.Map(mapOptions);
@@ -127,10 +109,8 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
         })
       );
 
-      this.map = map;
-
-      this.map.on('load', () => {
-        this.map.addSource('locations', {
+      map.on('load', () => {
+        map.addSource('locations', {
           type: 'geojson',
           data: mapItemsToGeoFeatures(this.props.items),
           cluster: true,
@@ -138,7 +118,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
           clusterRadius: 50,
         });
 
-        this.map.addLayer({
+        map.addLayer({
           id: 'clusters',
           type: 'circle',
           source: 'locations',
@@ -157,7 +137,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
           },
         });
 
-        this.map.addLayer({
+        map.addLayer({
           id: 'cluster-count',
           type: 'symbol',
           source: 'locations',
@@ -169,7 +149,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
           },
         });
 
-        this.map.addLayer({
+        map.addLayer({
           id: 'unclustered-point',
           type: 'circle',
           source: 'locations',
@@ -182,33 +162,47 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
           },
         });
 
-        this.map.on('click', 'clusters', e => {
-          const features = this.map.queryRenderedFeatures(e.point, {
+        map.on('click', 'clusters', event => {
+          const features = map.queryRenderedFeatures(event.point, {
             layers: ['clusters'],
           });
-          const clusterId = features[0].properties.cluster_id;
-          this.map.getSource('locations').getClusterExpansionZoom(clusterId, (err, zoom) => {
-            if (err) return;
 
-            this.map.easeTo({
-              center: features[0].geometry.coordinates,
-              zoom: zoom,
-            });
-          });
+          if (features && features.length > 0) {
+            const cluster = features[0];
+            if (cluster.properties !== null) {
+              const clusterId = cluster.properties.cluster_id;
+              (map.getSource('locations') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
+                clusterId,
+                (err, zoom) => {
+                  if (err) return;
+
+                  map.easeTo({
+                    // Oh TypeScript
+                    center: (cluster.geometry as any).coordinates as mapboxgl.LngLat,
+                    zoom,
+                  });
+                }
+              );
+            }
+          }
         });
 
-        this.map.on('click', 'unclustered-point', e => {
-          const fullPath = e.features[0].properties.fullPath;
-          const type = e.features[0].properties.type;
+        map.on('click', 'unclustered-point', event => {
+          if (event.features && event.features.length > 0) {
+            const point = event.features[0];
+            if (point.properties !== null) {
+              const { fullPath, type } = point.properties;
 
-          this.props.history.push(`/view/${type}/${fullPath}`);
+              this.props.history.push(`/view/${type}/${fullPath}`);
+            }
+          }
         });
       });
 
-      this.map.on('moveend', this.onMoveend);
+      map.on('moveend', this.onMoveend);
 
-      this.map.on('click', event => {
-        if (this.map.getZoom() >= 15) {
+      map.on('click', event => {
+        if (map.getZoom() >= 15) {
           this.setState({
             selectedPoint: event.lngLat,
           });
@@ -216,21 +210,25 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
         }
       });
 
-      if (this.props.match.path === '/') {
-        this.props.history.push(`/map/${initialLat}/${initialLng}/${initialZoom}`);
-      }
+      this.map = map;
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (this.map.isStyleLoaded() && prevProps.items.length !== this.props.items.length) {
-      this.map.getSource('locations').setData(mapItemsToGeoFeatures(this.props.items));
+    if (
+      this.map !== null &&
+      this.map.isStyleLoaded() &&
+      prevProps.items.length !== this.props.items.length
+    ) {
+      (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
+        mapItemsToGeoFeatures(this.props.items)
+      );
     }
   }
 
   onMoveend = () => {
-    const zoom = this.map.getZoom();
-    const { lng, lat } = this.map.getCenter();
+    const zoom = this.map!.getZoom();
+    const { lng, lat } = this.map!.getCenter();
 
     this.props.history.push(`/map/${lat}/${lng}/${zoom}`);
   };
@@ -257,7 +255,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
 
   requestSaved = () => {
     if (this.state.selectedPoint !== null) {
-      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map);
+      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map!);
 
       firebase
         .firestore()

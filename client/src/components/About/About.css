@@ -6,6 +6,12 @@
   overflow: auto;
   height: 100%;
 }
+
+.center {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .heading {
   text-align: center;
 }

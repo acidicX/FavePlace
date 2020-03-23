@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Switch, Route, withRouter, RouteComponentProps } from 'react-router-dom';
+import { Switch, Route, withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
 import './App.css';
 import View from '../View/View';
 import Map from '../Map/Map';
@@ -10,6 +10,13 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
+
+// Germany zoomed out
+const initialMapCenter = {
+  lat: 51.5167,
+  lng: 9.9167,
+  zoom: 4,
+};
 
 interface AppState {
   items: FirebaseItem[];
@@ -59,7 +66,9 @@ class App extends Component<RouteComponentProps, AppState> {
       <div className="App">
         <Switch>
           <Route path="/" exact>
-            <Map items={this.state.items} />
+            <Redirect
+              to={`/map/${initialMapCenter.lat}/${initialMapCenter.lng}/${initialMapCenter.zoom}`}
+            />
           </Route>
           <Route path="/map/:lat/:lng/:zoom">
             <Map items={this.state.items} />
