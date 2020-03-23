@@ -1,9 +1,10 @@
-name: Test Client
+name: CI Tests
 
 on:
   pull_request:
     paths:
       - client/**
+      - backend/**
       - .github/workflows/test.yml
 
 jobs:
@@ -63,9 +64,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Lint backend code
+      - name: Test backend code
         working-directory: ./backend
-        run: npm run lint
+        run: npm run test
         env:
           CI: true
 
