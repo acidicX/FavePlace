@@ -57,3 +57,67 @@ Zunächst haben wir unser Team in zwei Gruppen aufgeteilt, da wir alle sehr unte
 ## Was jeder einzelne von uns gelernt hat
 
 Wir haben gelernt, wie viel man mit nur wenig Leuten an einem Wochenende erreichen kann. Am Freitag hätte keiner von uns gedacht, wie weit wir bereits am Sonntag sein würden und auch wie viele weitere Möglichkeiten unser Projekt noch haben kann. Außerdem haben wir gelernt, Aufgaben effizient aufzuteilen und konnten oft die besten Ergebnisse im Gespräch zusammen entwickeln.
+
+## Projektteam
+
+* @acidicX
+* @aubcel
+* @B2Bitch2U
+* @benekoehler
+* @birte-nbr
+* @CarolinWindloff
+* @kingkongsy
+* @leomelzer
+* @MartinGassner
+* @Nniikkoowirvscorona
+
+## Ausprobieren!
+
+Sofern ihr nicht unseren [öffentlichen Prototypen](https://fav-place-taxi.peerigon.com) anschauen wollt, sodern das ganze selbst bauen und betreiben wollt, hier eine Anleitung.
+
+### Was wird benötigt?
+
+* [Docker](https://www.docker.com/products/docker-desktop) (inkl. `docker-compose`)
+* [Google Firebase](https://firebase.google.com/) Account (free tier reicht zum testen aus)
+* [Mapbox](https://account.mapbox.com/) API key (free tier reicht zum testen aus)
+
+Für die Entwicklung zusätzlich:
+* [Node.js](https://nodejs.org/en/download/) (LTS) und `npm`
+
+### Aufsetzen
+
+Kommandozeile (unix):
+
+```bash
+# .env kopieren
+cp .env.example .env
+cd client
+cp .env.example .env
+# nun editiert das .env file mit dem editor eurer Wahl und tragt die Variablen von Firebase und Mapbox ein
+nano .env
+```
+
+Danach könnt ihr das Projekt über `docker-compose` bauen und starten:
+
+```bash
+docker-compose build
+docker-compose up
+```
+
+Der Server sollte nun unter http://127.0.0.1:8080 für euch verfügbar sein.
+
+### Entwicklungsumgebung starten
+
+```bash
+cd client
+npm ci
+npm run start
+```
+
+Der Webpack Dev Server sollte nun unter http://localhost:3000 für euch verfügbar sein. Das Backend muss aktuell für die Entwicklung **nicht** gestartet werden. Es liefert nur den Client im Production Mode aus.
+
+## Sponsors
+
+Der öffentliche Prototyp wird unterstützt durch:
+
+[<img src="https://assets.peerigon.com/peerigon/logo/peerigon-logo-flat-spinat.png" width="150" />](https://peerigon.com)
