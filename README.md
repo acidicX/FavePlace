@@ -60,16 +60,16 @@ Wir haben gelernt, wie viel man mit nur wenig Leuten an einem Wochenende erreich
 
 ## Projektteam
 
-* @acidicX
-* @aubcel
-* @B2Bitch2U
-* @benekoehler
-* @birte-nbr
-* @CarolinWindloff
-* @kingkongsy
-* @leomelzer
-* @MartinGassner
-* @Nniikkoowirvscorona
+* [@acidicX](https://github.com/acidicX)
+* [@aubcel](https://github.com/aubcel)
+* [@B2Bitch2U](https://github.com/B2Bitch2U)
+* [@benekoehler](https://github.com/benekoehler)
+* [@birte-nbr](https://github.com/birte-nbr)
+* [@CarolinWindloff](https://github.com/CarolinWindloff)
+* [@kingkongsy](https://github.com/kingkongsy)
+* [@leomelzer](https://github.com/leomelzer)
+* [@MartinGassner](https://github.com/MartinGassner)
+* [@Nniikkoowirvscorona](https://github.com/Nniikkoowirvscorona)
 
 ## Ausprobieren!
 
@@ -104,6 +104,8 @@ docker-compose up
 ```
 
 Der Server sollte nun unter http://127.0.0.1:8080 für euch verfügbar sein.
+
+Das Docker Image findet ihr auf [Docker Hub](https://hub.docker.com/repository/docker/faveplace/faveplace).
 
 ### Entwicklungsumgebung starten
 
