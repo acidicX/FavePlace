@@ -134,7 +134,7 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
 
             <FormControl fullWidth>
               <div className="FormSpacer" />
-              <FormLabel component="legend">Bild aufnehmen / Datei hochladen</FormLabel>
+              <FormLabel component="legend">Foto oder Video aufnehmen / Datei hochladen</FormLabel>
               <Field
                 className="UploadButton"
                 id="upload-button"
