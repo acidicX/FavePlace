@@ -18,10 +18,13 @@ jobs:
           fetch-depth: 0
 
       - name: Set env
-        run: echo ::set-env name=RELEASE_VERSION::$(git describe --abbrev=0 --tags)
+        run: |
+          echo ::set-env name=RELEASE_VERSION::$(git describe --abbrev=0 --tags)
+          echo ::set-env name=DOCKER_USERNAME::${{ secrets.DOCKER_HUB_USER }}
+          echo ::set-env name=DOCKER_PASSWORD::${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: login to docker hub
-        run: echo ${{secrets.DOCKER_HUB_PASSWORD}} | docker login -u ${{secrets.DOCKER_HUB_USER}} --password-stdin docker.io
+        run: docker login docker.io
 
       - name: build docker image from master
         run: docker build -t docker.io/faveplace/faveplace:${{ env.RELEASE_VERSION }} .
