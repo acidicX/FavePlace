@@ -6,14 +6,13 @@ import { MediaType, GeoLocation } from '../../types';
 import {
   Button,
   FormControl,
-  MenuItem,
   LinearProgress,
   FormLabel,
   RadioGroup,
   Radio,
   FormControlLabel,
 } from '@material-ui/core';
-import { TextField, Select } from 'formik-material-ui';
+import { TextField } from 'formik-material-ui';
 import {
   CloudUpload as CloudUploadIcon,
   PhotoCamera as PhotoCameraIcon,
