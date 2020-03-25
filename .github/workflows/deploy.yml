@@ -36,7 +36,7 @@ jobs:
         run: docker push docker.io/faveplace/faveplace:${{ env.RELEASE_VERSION }}
 
       - name: publish image to docker hub with latest tag
-        run: docker push docker.io/pfaveplace/faveplace:latest
+        run: docker push docker.io/faveplace/faveplace:latest
 
   deploy-hetzner-stage:
     runs-on: ubuntu-latest
