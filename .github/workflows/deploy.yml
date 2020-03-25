@@ -24,7 +24,7 @@ jobs:
           echo ::set-env name=DOCKER_PASSWORD::${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: login to docker hub
-        run: docker login -u ${{ secrets.DOCKER_HUB_USER }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} docker.io
+        run: docker login docker.io
 
       - name: build docker image from master
         run: docker build -t docker.io/faveplace/faveplace:${{ env.RELEASE_VERSION }} .
