@@ -13,11 +13,9 @@ jobs:
 
     steps:
       - name: git checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
         with:
           fetch-depth: 0
-        run: |
-          git fetch --prune --unshallow
 
       - name: Set env
         run: |
