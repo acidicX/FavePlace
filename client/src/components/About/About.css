@@ -7,6 +7,11 @@
   height: 100%;
 }
 
+.about img {
+  margin: 0 auto;
+  display: flex;
+}
+
 .center {
   max-width: 800px;
   margin: 0 auto;

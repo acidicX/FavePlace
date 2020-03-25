@@ -1,11 +1,13 @@
 import React from 'react';
 import './About.css';
+import Logo from '../../../public/faveplace-192.png';
 
 export default function About() {
   return (
     <div className="about">
       <div className="center">
         <h1 className="heading">FavePlace</h1>
+        <img src="/faveplace-192.png" width={192} alt="FavePlace Logo" />
         <div className="content">
           <p>
             <span>Diese App ist im Rahmen des Hackathons </span>
