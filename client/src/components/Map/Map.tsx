@@ -15,7 +15,7 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
+import { ListOutlined, AddAPhoto, PinDrop, Info, HelpOutline } from '@material-ui/icons';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { FirebaseItem } from '../../types';
@@ -28,6 +28,7 @@ interface Props {
 
 interface MapState {
   selectedPoint: mapboxgl.LngLat | null;
+  mapSelectable: boolean;
   drawerIsOpen: boolean;
   uploadIsOpen: boolean;
   showRequestPendingNotification: boolean;
@@ -65,6 +66,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
 
     this.state = {
       selectedPoint: null,
+      mapSelectable: false,
       drawerIsOpen: false,
       uploadIsOpen: false,
       showRequestPendingNotification: false,
@@ -295,6 +297,12 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
       }
     });
 
+    map.on('zoomend', event => {
+      this.setState({
+        mapSelectable: event.target.getZoom() >= 15,
+      });
+    });
+
     this.map = map;
     this.addPulsingDotToMap();
   };
@@ -383,7 +391,9 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
     return (
       <div className="Map">
         <div id="map"></div>
-
+        {this.state.mapSelectable ? (
+          <div className="select">Du kannst nun Orte auf der Karte markieren!</div>
+        ) : null}
         <Snackbar
           className="Snackbar"
           open={this.state.showRequestPendingNotification}
@@ -438,9 +448,10 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
             icon={<ListOutlined />}
           />
           <BottomNavigationAction
-            onClick={this.toggleUpload}
-            label="Erstellen"
-            icon={<AddAPhoto />}
+            component={Link}
+            to="/help"
+            label="Anleitung"
+            icon={<HelpOutline />}
           />
           <BottomNavigationAction component={Link} to="/about" label="Über uns" icon={<Info />} />
         </BottomNavigation>

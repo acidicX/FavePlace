@@ -10,6 +10,7 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { BottomNavigation, BottomNavigationAction } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
+import HowTo from '../HowTo/HowTo';
 
 // Germany zoomed out
 const initialMapCenter = {
@@ -88,6 +89,16 @@ class App extends Component<RouteComponentProps, AppState> {
           </Route>
           <Route path="/about">
             <About />
+            <BottomNavigation showLabels>
+              <BottomNavigationAction
+                icon={<ArrowBack />}
+                onClick={() => this.props.history.goBack()}
+                label="Zurück"
+              />
+            </BottomNavigation>
+          </Route>
+          <Route path="/help">
+            <HowTo />
             <BottomNavigation showLabels>
               <BottomNavigationAction
                 icon={<ArrowBack />}

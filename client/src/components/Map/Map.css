@@ -4,6 +4,14 @@
   height: 100%;
 }
 
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(235, 140, 32, 0.7);
+  line-height: 2em;
+}
+
 @media screen and (max-width: 600px) {
   .Map .mapboxgl-ctrl-geocoder.mapboxgl-ctrl {
     width: calc(100vw - 20px);

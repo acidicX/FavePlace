@@ -1,0 +1,21 @@
+.howto {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(234, 140, 32, 0.393);
+  padding: 15px 20px;
+  overflow: auto;
+  height: 100%;
+}
+
+.center {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heading {
+  text-align: center;
+}
+
+.link {
+  color: #222;
+}

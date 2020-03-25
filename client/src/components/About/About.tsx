@@ -1,6 +1,5 @@
 import React from 'react';
 import './About.css';
-import Logo from '../../../public/faveplace-192.png';
 
 export default function About() {
   return (
