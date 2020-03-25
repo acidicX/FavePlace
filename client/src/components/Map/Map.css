@@ -4,6 +4,12 @@
   height: 100%;
 }
 
+@media screen and (max-width: 600px) {
+  .Map .mapboxgl-ctrl-geocoder.mapboxgl-ctrl {
+    width: calc(100vw - 20px);
+  }
+}
+
 #map {
   flex: 1;
 }

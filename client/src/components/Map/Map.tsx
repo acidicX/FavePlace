@@ -74,6 +74,66 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
 
   map: mapboxgl.Map | null = null;
 
+  addPulsingDotToMap = () => {
+    if (!this.map) {
+      return;
+    }
+
+    const size = 120;
+    const pulsingDot = {
+      width: size,
+      height: size,
+      data: new Uint8Array(size * size * 4),
+      map: this.map,
+      context: (null as unknown) as CanvasRenderingContext2D,
+
+      // get rendering context for the map canvas when layer is added to the map
+      onAdd: function() {
+        const canvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;
+        canvas.width = this.width;
+        canvas.height = this.height;
+        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
+      },
+
+      // called once before every frame where the icon will be used
+      render: function() {
+        const duration = 1000;
+        const t = (performance.now() % duration) / duration;
+        const radius = (size / 2) * 0.3;
+        const outerRadius = (size / 2) * 0.7 * t + radius;
+        const context = this.context;
+
+        // draw outer circle
+        context.clearRect(0, 0, this.width, this.height);
+        context.beginPath();
+        context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(235, 140, 32,' + (1 - t) + ')';
+        context.fill();
+
+        // draw inner circle
+        context.beginPath();
+        context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(235, 140, 32, 1)';
+        context.strokeStyle = 'white';
+        context.lineWidth = 2 + 4 * (1 - t);
+        context.fill();
+        context.stroke();
+
+        // update this image's data with data from the canvas
+        this.data = (context.getImageData(0, 0, this.width, this.height)
+          .data as unknown) as Uint8Array;
+
+        // continuously repaint the map, resulting in the smooth animation of the dot
+        this.map.triggerRepaint();
+
+        // return `true` to let the map know that the image was updated
+        return true;
+      },
+    };
+
+    this.map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+  };
+
   mapSetup = () => {
     const { lat, lng, zoom } = this.props.match.params;
 
@@ -206,11 +266,37 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
         this.setState({
           selectedPoint: event.lngLat,
         });
+        map.addSource('touched-point', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: event.lngLat.toArray(),
+                },
+              },
+            ],
+          },
+        });
+        map.addLayer({
+          id: 'touched-point',
+          type: 'symbol',
+          source: 'touched-point',
+          layout: {
+            'icon-anchor': 'center',
+            'icon-image': 'pulsing-dot',
+          },
+        });
         this.toggleDrawer();
       }
     });
 
     this.map = map;
+    this.addPulsingDotToMap();
   };
 
   componentDidMount() {
@@ -243,6 +329,16 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
   };
 
   toggleDrawer = () => {
+    const map = this.map;
+    if (map && this.state.drawerIsOpen) {
+      if (map.getLayer('touched-point')) {
+        map.removeLayer('touched-point');
+      }
+
+      if (map.getSource('touched-point')) {
+        map.removeSource('touched-point');
+      }
+    }
     this.setState({
       drawerIsOpen: !this.state.drawerIsOpen,
     });
