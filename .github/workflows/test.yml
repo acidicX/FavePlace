@@ -1,9 +1,10 @@
-name: Test Client
+name: CI Tests
 
 on:
   pull_request:
     paths:
       - client/**
+      - backend/**
       - .github/workflows/test.yml
 
 jobs:
@@ -11,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - uses: actions/setup-node@v1
         with:
@@ -37,6 +38,40 @@ jobs:
 
       - name: Build client code
         working-directory: ./client
+        run: npm run build
+        env:
+          CI: true
+
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          npm ci
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Test backend code
+        working-directory: ./backend
+        run: npm run test
+        env:
+          CI: true
+
+      - name: Build backend code
+        working-directory: ./backend
         run: npm run build
         env:
           CI: true

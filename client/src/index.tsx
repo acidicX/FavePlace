@@ -9,20 +9,22 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import theme from './theme';
+import { appConfig } from './lib/config';
 
 const config = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  apiKey: appConfig.firebaseApiKey,
+  authDomain: appConfig.firebaseAuthDomain,
+  databaseURL: appConfig.firebaseDatabaseUrl,
+  projectId: appConfig.firebaseProjectId,
+  storageBucket: appConfig.firebaseStorageBucket,
+  messagingSenderId: appConfig.firebaseMessagingSenderId,
 };
-
-console.debug('Loading AFrame: ' + AFrame.version);
 
 firebase.initializeApp(config);
 firebase.firestore();
+
+// this requires A-Frame. Should be loaded as high as possible in the render tree.
+console.debug('Loading AFrame: ' + AFrame.version);
 
 ReactDOM.render(
   <React.StrictMode>

@@ -6,6 +6,7 @@ import { Share } from '@material-ui/icons';
 import View360 from '../View360/View360';
 import { MediaType, FirebaseItem } from '../../types';
 import firebase from 'firebase';
+import { appConfig } from '../../lib/config';
 
 type ViewRouteParams = {
   id: string;
@@ -31,7 +32,7 @@ const Sharing: React.FunctionComponent<{ title: string }> = ({ title }) => {
 
 const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match, history }) => {
   const { id, type } = match.params;
-  const [title, setTitle] = useState('blums');
+  const [title, setTitle] = useState('title placeholder');
 
   firebase
     .firestore()
@@ -45,7 +46,7 @@ const View: React.FC<RouteComponentProps<ViewRouteParams>> = ({ match, history }
       });
     });
 
-  const src = `https://firebasestorage.googleapis.com/v0/b/favorite-place-taxi.appspot.com/o/${id}?alt=media`;
+  const src = `https://firebasestorage.googleapis.com/v0/b/${appConfig.firebaseStorageBucket}/o/${id}?alt=media`;
 
   if (type === 'image') {
     return (
