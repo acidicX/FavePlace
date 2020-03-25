@@ -15,20 +15,30 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { ListOutlined, AddAPhoto, PinDrop, Info, HelpOutline } from '@material-ui/icons';
+import {
+  ListOutlined,
+  AddAPhoto,
+  PinDrop,
+  Info,
+  HelpOutline,
+  Room as RoomIcon,
+} from '@material-ui/icons';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
-import { FirebaseItem } from '../../types';
+import { FirebaseItem, FirebaseRequest } from '../../types';
 import UploadForm from '../UploadForm/UploadForm';
 import { appConfig } from '../../lib/config';
+import { mapItemsToGeoFeatures, mapRequestsToGeoFeatures } from '../../lib/maputils';
 
 interface Props {
   items: FirebaseItem[];
+  requests: FirebaseRequest[];
 }
 
 interface MapState {
   selectedPoint: mapboxgl.LngLat | null;
   mapSelectable: boolean;
+  viewMode: 'requests' | 'items';
   drawerIsOpen: boolean;
   uploadIsOpen: boolean;
   showRequestPendingNotification: boolean;
@@ -37,29 +47,6 @@ interface MapState {
 
 type MapRouteParams = { lat: string; lng: string; zoom: string };
 
-const mapItemsToGeoFeatures = (items: FirebaseItem[]): GeoJSON.FeatureCollection => ({
-  type: 'FeatureCollection',
-  features: items.map(item => {
-    const { id, title, geo, fullPath, type } = item;
-
-    const feature: GeoJSON.Feature = {
-      type: 'Feature',
-      properties: {
-        id,
-        title,
-        fullPath,
-        type,
-      },
-      geometry: {
-        type: 'Point',
-        coordinates: [geo.longitude, geo.latitude],
-      },
-    };
-
-    return feature;
-  }),
-});
-
 class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapState> {
   constructor(props, state) {
     super(props, state);
@@ -67,6 +54,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
     this.state = {
       selectedPoint: null,
       mapSelectable: false,
+      viewMode: 'items',
       drawerIsOpen: false,
       uploadIsOpen: false,
       showRequestPendingNotification: false,
@@ -311,7 +299,7 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
     this.mapSetup();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props, prevState: MapState) {
     if (
       this.map !== null &&
       this.map.isStyleLoaded() &&
@@ -320,6 +308,23 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
       (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
         mapItemsToGeoFeatures(this.props.items)
       );
+    }
+
+    if (
+      this.map !== null &&
+      this.map.isStyleLoaded() &&
+      prevState.viewMode !== this.state.viewMode
+    ) {
+      if (this.state.viewMode === 'items') {
+        (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
+          mapItemsToGeoFeatures(this.props.items)
+        );
+      }
+      if (this.state.viewMode === 'requests') {
+        (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
+          mapRequestsToGeoFeatures(this.props.requests)
+        );
+      }
     }
   }
 
@@ -333,6 +338,12 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
   toggleUpload = () => {
     this.setState({
       uploadIsOpen: !this.state.uploadIsOpen,
+    });
+  };
+
+  toggleViewMode = () => {
+    this.setState({
+      viewMode: this.state.viewMode === 'items' ? 'requests' : 'items',
     });
   };
 
@@ -361,18 +372,23 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
   };
 
   requestSaved = () => {
-    if (this.state.selectedPoint !== null) {
-      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map!);
+    if (this.map && this.state.selectedPoint !== null) {
+      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map);
+
+      const date = new Date();
+      const request: Omit<FirebaseRequest, 'id'> = {
+        title: '',
+        geo: new firebase.firestore.GeoPoint(
+          this.state.selectedPoint.lat,
+          this.state.selectedPoint.lng
+        ),
+        timestamp: firebase.firestore.Timestamp.fromDate(date),
+      };
 
       firebase
         .firestore()
         .collection('requests')
-        .add({
-          geo: {
-            lng: this.state.selectedPoint.lng,
-            lat: this.state.selectedPoint.lat,
-          },
-        });
+        .add(request);
     }
 
     this.setState({
@@ -446,6 +462,11 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
             to="/list"
             label="Liste"
             icon={<ListOutlined />}
+          />
+          <BottomNavigationAction
+            onClick={this.toggleViewMode}
+            label={this.state.viewMode === 'requests' ? 'Zeige Medien' : 'Zeige Wünsche'}
+            icon={<RoomIcon />}
           />
           <BottomNavigationAction
             component={Link}
