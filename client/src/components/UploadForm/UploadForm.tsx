@@ -3,14 +3,28 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import './UploadForm.css';
 import { uploadFile } from '../../lib/uploadFile';
 import { MediaType, GeoLocation } from '../../types';
-import { Button, FormControl, MenuItem, LinearProgress } from '@material-ui/core';
-import { TextField, Select } from 'formik-material-ui';
-import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
+import {
+  Button,
+  FormControl,
+  LinearProgress,
+  FormLabel,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+} from '@material-ui/core';
+import { TextField } from 'formik-material-ui';
+import {
+  CloudUpload as CloudUploadIcon,
+  PhotoCamera as PhotoCameraIcon,
+  PhotoLibrary as PhotoLibraryIcon,
+  Videocam as VideocamIcon,
+  VideoLibrary as VideoLibraryIcon,
+} from '@material-ui/icons';
 import firebase from 'firebase';
 import { useHistory } from 'react-router';
 
 interface IFormValues {
-  type: MediaType;
+  type: MediaType | '';
   title: string;
   tags: Array<string>;
   file: string;
@@ -24,7 +38,7 @@ interface IFormErrors {
 }
 
 const initialValues: IFormValues = {
-  type: 'image',
+  type: '',
   title: '',
   tags: ['test1'],
   file: '',
@@ -58,8 +72,8 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
         }}
         onSubmit={async (values: IFormValues, { setSubmitting }) => {
           const { type, title, tags, fileAsBlob } = values;
-          if (!fileAsBlob) {
-            throw new Error('no file');
+          if (!fileAsBlob || !type) {
+            throw new Error('no file or type');
           }
 
           try {
@@ -93,51 +107,102 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
         }) => (
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth>
-              <FormControl fullWidth>
+              <div className="FormSpacer" />
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Medien-Typ</FormLabel>
                 <Field
-                  className="UploadButton"
-                  id="upload-button"
-                  type="file"
-                  name="file"
+                  required
+                  component={RadioGroup}
+                  defaultValue={initialValues.type}
+                  value={values.type}
+                  name="type"
+                  aria-label="type"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setFieldValue('fileAsBlob', e.target.files[0]);
+                    if (e.target.value) {
+                      setFieldValue('type', e.target.value);
                     }
                   }}
-                />
-                <label htmlFor="upload-button">
-                  <Button component="span">Foto oder Video auswählen...</Button>
-                </label>
-                <ErrorMessage name="fileAsBlob" component="div" />
+                >
+                  <FormControlLabel value="image" control={<Radio />} label="Foto" />
+                  <FormControlLabel value="image360" control={<Radio />} label="360° Foto" />
+                  <FormControlLabel value="video" control={<Radio />} label="Video" />
+                </Field>
               </FormControl>
-
-              <Field component={Select} name="type">
-                <MenuItem value={'image'}>Foto</MenuItem>
-                <MenuItem value={'image360'}>360° Foto</MenuItem>
-                <MenuItem value={'video'}>Video</MenuItem>
-              </Field>
               <ErrorMessage name="type" component="div" />
             </FormControl>
+            <div className="FormSpacer" />
 
             <FormControl fullWidth>
+              <div className="FormSpacer" />
+              <FormLabel component="legend">Foto oder Video aufnehmen / Datei hochladen</FormLabel>
+              <Field
+                className="UploadButton"
+                id="upload-button"
+                type="file"
+                accept={
+                  values.type === 'video'
+                    ? 'video/mp4,video/x-m4v,video/*'
+                    : 'image/png,image/jpg,image/jpeg'
+                }
+                name="file"
+                autoFocus
+                capture={values.type === 'image' || values.type === 'video'}
+                multiple={false}
+                disabled={!values.type}
+                required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>): void => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setFieldValue('fileAsBlob', e.target.files[0]);
+                  }
+                }}
+              />
+              <label htmlFor="upload-button" className={values.type ? 'FilePickerActions' : ''}>
+                <Button component={'span'} disabled={!values.type}>
+                  {!values.type ? 'Bitte zuerst einen Typ auswählen' : null}
+                  {values.type && values.type === 'video' ? (
+                    <span>
+                      <VideocamIcon /> <VideoLibraryIcon /> Video aufnehmen oder auswählen...
+                    </span>
+                  ) : null}
+                  {values.type && values.type === 'image' ? (
+                    <span>
+                      <PhotoCameraIcon /> <PhotoLibraryIcon /> Foto aufnehmen oder auswählen...
+                    </span>
+                  ) : null}
+                  {values.type && values.type === 'image360' ? (
+                    <span>
+                      <PhotoLibraryIcon /> Foto auswählen...
+                    </span>
+                  ) : null}
+                </Button>
+              </label>
+              <ErrorMessage name="fileAsBlob" component="div" />
+            </FormControl>
+            <div className="FormSpacer" />
+
+            <FormControl fullWidth>
+              <div className="FormSpacer" />
+              <FormLabel component="legend">Beschreibung</FormLabel>
               <Field
                 component={TextField}
-                placeholder="Unser Lieblingsort..."
+                placeholder="Dies ist mein Lieblingsort... (benötigt)"
                 type="text"
                 name="title"
+                required
+                error={errors.title}
               />
               <ErrorMessage name="title" component="div" />
             </FormControl>
+            <div className="FormSpacer" />
 
             <div className="UploadActions">
               {isSubmitting && <LinearProgress />}
-
               <Button
                 variant="contained"
                 color="primary"
                 startIcon={<CloudUploadIcon />}
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !values.fileAsBlob || !values.title}
               >
                 Hochladen
               </Button>
