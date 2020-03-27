@@ -15,19 +15,30 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { ListOutlined, AddAPhoto, PinDrop, Info } from '@material-ui/icons';
+import {
+  ListOutlined,
+  AddAPhoto,
+  PinDrop,
+  Info,
+  HelpOutline,
+  Room as RoomIcon,
+} from '@material-ui/icons';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
-import { FirebaseItem } from '../../types';
+import { FirebaseItem, FirebaseRequest } from '../../types';
 import UploadForm from '../UploadForm/UploadForm';
 import { appConfig } from '../../lib/config';
+import { mapItemsToGeoFeatures, mapRequestsToGeoFeatures } from '../../lib/maputils';
 
 interface Props {
   items: FirebaseItem[];
+  requests: FirebaseRequest[];
 }
 
 interface MapState {
   selectedPoint: mapboxgl.LngLat | null;
+  mapSelectable: boolean;
+  viewMode: 'requests' | 'items';
   drawerIsOpen: boolean;
   uploadIsOpen: boolean;
   showRequestPendingNotification: boolean;
@@ -36,35 +47,14 @@ interface MapState {
 
 type MapRouteParams = { lat: string; lng: string; zoom: string };
 
-const mapItemsToGeoFeatures = (items: FirebaseItem[]): GeoJSON.FeatureCollection => ({
-  type: 'FeatureCollection',
-  features: items.map(item => {
-    const { id, title, geo, fullPath, type } = item;
-
-    const feature: GeoJSON.Feature = {
-      type: 'Feature',
-      properties: {
-        id,
-        title,
-        fullPath,
-        type,
-      },
-      geometry: {
-        type: 'Point',
-        coordinates: [geo.longitude, geo.latitude],
-      },
-    };
-
-    return feature;
-  }),
-});
-
 class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapState> {
   constructor(props, state) {
     super(props, state);
 
     this.state = {
       selectedPoint: null,
+      mapSelectable: false,
+      viewMode: 'items',
       drawerIsOpen: false,
       uploadIsOpen: false,
       showRequestPendingNotification: false,
@@ -73,6 +63,66 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
   }
 
   map: mapboxgl.Map | null = null;
+
+  addPulsingDotToMap = () => {
+    if (!this.map) {
+      return;
+    }
+
+    const size = 120;
+    const pulsingDot = {
+      width: size,
+      height: size,
+      data: new Uint8Array(size * size * 4),
+      map: this.map,
+      context: (null as unknown) as CanvasRenderingContext2D,
+
+      // get rendering context for the map canvas when layer is added to the map
+      onAdd: function() {
+        const canvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;
+        canvas.width = this.width;
+        canvas.height = this.height;
+        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
+      },
+
+      // called once before every frame where the icon will be used
+      render: function() {
+        const duration = 1000;
+        const t = (performance.now() % duration) / duration;
+        const radius = (size / 2) * 0.3;
+        const outerRadius = (size / 2) * 0.7 * t + radius;
+        const context = this.context;
+
+        // draw outer circle
+        context.clearRect(0, 0, this.width, this.height);
+        context.beginPath();
+        context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(235, 140, 32,' + (1 - t) + ')';
+        context.fill();
+
+        // draw inner circle
+        context.beginPath();
+        context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(235, 140, 32, 1)';
+        context.strokeStyle = 'white';
+        context.lineWidth = 2 + 4 * (1 - t);
+        context.fill();
+        context.stroke();
+
+        // update this image's data with data from the canvas
+        this.data = (context.getImageData(0, 0, this.width, this.height)
+          .data as unknown) as Uint8Array;
+
+        // continuously repaint the map, resulting in the smooth animation of the dot
+        this.map.triggerRepaint();
+
+        // return `true` to let the map know that the image was updated
+        return true;
+      },
+    };
+
+    this.map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+  };
 
   mapSetup = () => {
     const { lat, lng, zoom } = this.props.match.params;
@@ -206,18 +256,50 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
         this.setState({
           selectedPoint: event.lngLat,
         });
+        map.addSource('touched-point', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: event.lngLat.toArray(),
+                },
+              },
+            ],
+          },
+        });
+        map.addLayer({
+          id: 'touched-point',
+          type: 'symbol',
+          source: 'touched-point',
+          layout: {
+            'icon-anchor': 'center',
+            'icon-image': 'pulsing-dot',
+          },
+        });
         this.toggleDrawer();
       }
     });
 
+    map.on('zoomend', event => {
+      this.setState({
+        mapSelectable: event.target.getZoom() >= 15,
+      });
+    });
+
     this.map = map;
+    this.addPulsingDotToMap();
   };
 
   componentDidMount() {
     this.mapSetup();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props, prevState: MapState) {
     if (
       this.map !== null &&
       this.map.isStyleLoaded() &&
@@ -226,6 +308,23 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
       (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
         mapItemsToGeoFeatures(this.props.items)
       );
+    }
+
+    if (
+      this.map !== null &&
+      this.map.isStyleLoaded() &&
+      prevState.viewMode !== this.state.viewMode
+    ) {
+      if (this.state.viewMode === 'items') {
+        (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
+          mapItemsToGeoFeatures(this.props.items)
+        );
+      }
+      if (this.state.viewMode === 'requests') {
+        (this.map.getSource('locations') as mapboxgl.GeoJSONSource).setData(
+          mapRequestsToGeoFeatures(this.props.requests)
+        );
+      }
     }
   }
 
@@ -242,7 +341,23 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
     });
   };
 
+  toggleViewMode = () => {
+    this.setState({
+      viewMode: this.state.viewMode === 'items' ? 'requests' : 'items',
+    });
+  };
+
   toggleDrawer = () => {
+    const map = this.map;
+    if (map && this.state.drawerIsOpen) {
+      if (map.getLayer('touched-point')) {
+        map.removeLayer('touched-point');
+      }
+
+      if (map.getSource('touched-point')) {
+        map.removeSource('touched-point');
+      }
+    }
     this.setState({
       drawerIsOpen: !this.state.drawerIsOpen,
     });
@@ -257,18 +372,23 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
   };
 
   requestSaved = () => {
-    if (this.state.selectedPoint !== null) {
-      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map!);
+    if (this.map && this.state.selectedPoint !== null) {
+      new mapboxgl.Marker().setLngLat(this.state.selectedPoint).addTo(this.map);
+
+      const date = new Date();
+      const request: Omit<FirebaseRequest, 'id'> = {
+        title: '',
+        geo: new firebase.firestore.GeoPoint(
+          this.state.selectedPoint.lat,
+          this.state.selectedPoint.lng
+        ),
+        timestamp: firebase.firestore.Timestamp.fromDate(date),
+      };
 
       firebase
         .firestore()
         .collection('requests')
-        .add({
-          geo: {
-            lng: this.state.selectedPoint.lng,
-            lat: this.state.selectedPoint.lat,
-          },
-        });
+        .add(request);
     }
 
     this.setState({
@@ -287,7 +407,9 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
     return (
       <div className="Map">
         <div id="map"></div>
-
+        {this.state.mapSelectable ? (
+          <div className="select">Du kannst nun Orte auf der Karte markieren!</div>
+        ) : null}
         <Snackbar
           className="Snackbar"
           open={this.state.showRequestPendingNotification}
@@ -342,9 +464,15 @@ class Map extends Component<RouteComponentProps<MapRouteParams> & Props, MapStat
             icon={<ListOutlined />}
           />
           <BottomNavigationAction
-            onClick={this.toggleUpload}
-            label="Erstellen"
-            icon={<AddAPhoto />}
+            onClick={this.toggleViewMode}
+            label={this.state.viewMode === 'requests' ? 'Zeige Medien' : 'Zeige Wünsche'}
+            icon={<RoomIcon />}
+          />
+          <BottomNavigationAction
+            component={Link}
+            to="/help"
+            label="Anleitung"
+            icon={<HelpOutline />}
           />
           <BottomNavigationAction component={Link} to="/about" label="Über uns" icon={<Info />} />
         </BottomNavigation>

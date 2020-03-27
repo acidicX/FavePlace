@@ -15,6 +15,13 @@ export type FirebaseItem = {
   fullPath: string;
 };
 
+export type FirebaseRequest = {
+  id: string;
+  title?: string;
+  geo: firebase.firestore.GeoPoint;
+  timestamp: firebase.firestore.Timestamp;
+};
+
 export type InjectedConfiguration = {
   mapboxAccessToken: string;
   mapboxMapStyle: string;

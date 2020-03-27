@@ -6,6 +6,7 @@ export default function About() {
     <div className="about">
       <div className="center">
         <h1 className="heading">FavePlace</h1>
+        <img src="/faveplace-192.png" width={192} alt="FavePlace Logo" />
         <div className="content">
           <p>
             <span>Diese App ist im Rahmen des Hackathons </span>
