@@ -1,6 +1,6 @@
 {
   "name": "fave-place",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "see https://github.com/acidicX/FavePlace#faveplace",
   "main": "backend/dist/index.js",
   "scripts": {
