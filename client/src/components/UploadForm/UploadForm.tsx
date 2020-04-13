@@ -202,6 +202,7 @@ const UploadForm: React.FunctionComponent<UploadFormProps> = ({ geo }) => {
                 color="primary"
                 startIcon={<CloudUploadIcon />}
                 type="submit"
+                onClick={(e) => handleSubmit()}
                 disabled={isSubmitting || !values.fileAsBlob || !values.title}
               >
                 Hochladen
